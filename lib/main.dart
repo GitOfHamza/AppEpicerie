@@ -14,7 +14,7 @@ import 'package:flutter_application_1/Vu/VuPage.dart';
 import 'package:flutter_application_1/Wishlist/WishlistPage.dart';
 import 'package:provider/provider.dart';
 
-/************ Bienvenue Sur le main *******************/
+/** Welcome to Main File  */
 
 void main() => runApp(MyApp());
 
