@@ -14,6 +14,8 @@ import 'package:flutter_application_1/Vu/VuPage.dart';
 import 'package:flutter_application_1/Wishlist/WishlistPage.dart';
 import 'package:provider/provider.dart';
 
+// Bienvenue Sur le main
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -45,7 +47,8 @@ class _MyAppState extends State<MyApp> {
           return darkThemeProvider;
         })
       ],
-      child: Consumer<DarkThemeProvider>(builder: (context, themeProvider, child) => MaterialApp(
+      child: Consumer<DarkThemeProvider>(
+        builder: (context, themeProvider, child) => MaterialApp(
           initialRoute: '/',
           onGenerateRoute: (settings) => RouteGenarator.generateRoute(settings),
           debugShowCheckedModeBanner: false,
@@ -56,7 +59,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
 
 /****************************** ROUTAGE ***************************************/
 
@@ -70,7 +72,8 @@ class RouteGenarator {
       case '/All_Products':
         return MaterialPageRoute(builder: (context) => const BrowseAll());
       case '/DetailleOfProduct':
-        return MaterialPageRoute(builder: (context) => const DetailleOfProduct());
+        return MaterialPageRoute(
+            builder: (context) => const DetailleOfProduct());
       case '/WishlistPage':
         return MaterialPageRoute(builder: (context) => const WishlistPage());
       case '/OrdersPage':
@@ -82,7 +85,8 @@ class RouteGenarator {
       case '/Register':
         return MaterialPageRoute(builder: (context) => const RegisterPage());
       case '/ForgetPassword':
-        return MaterialPageRoute(builder: (context) => const ForgetPasswordPage());
+        return MaterialPageRoute(
+            builder: (context) => const ForgetPasswordPage());
       default:
         throw const FormatException('Page not found');
     }
