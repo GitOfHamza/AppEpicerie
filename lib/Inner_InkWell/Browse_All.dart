@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Consts/ImageAutoScrolle.dart';
+import 'package:flutter_application_1/Models/Product.dart';
+import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Services/No%20data.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/BackLastPage.dart';
 import 'package:flutter_application_1/Widgets/Product_Info.dart';
 import 'package:flutter_application_1/Widgets/Products.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:provider/provider.dart';
 
 class BrowseAll extends StatefulWidget {
   const BrowseAll({Key? key}) : super(key: key);
@@ -31,6 +34,8 @@ class _BrowseAllState extends State<BrowseAll> {
     bool __isEmpty = false;
     Size __size = MyTools(context).getScreenSize;
     final Color couleur = MyTools(context).color;
+    final productsProvider = Provider.of<ProductsProvider>(context);
+    List<ProductModel> listOfProduct = productsProvider.getProduct;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -39,11 +44,12 @@ class _BrowseAllState extends State<BrowseAll> {
         ),
         leading: const BackLastPage(),
         elevation: 0,
-        
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
       body: __isEmpty
-          ? const PageIsEmpty()
+          ? const PageIsEmpty(
+              isOnSolde: false,
+            )
           : SingleChildScrollView(
               child: Column(
                 children: [
@@ -80,20 +86,22 @@ class _BrowseAllState extends State<BrowseAll> {
                       ),
                     ),
                   ),
-                  GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      // crossAxisSpacing: 2,
-                      padding: EdgeInsets.zero,
-                      crossAxisCount: 2,
-                      childAspectRatio: __size.width / (__size.height * 0.55),
-                      children: List.generate(ImageAutoScrolle.productsList.length, (index) {
-                        return Products(
-                          imageUrl: ImageAutoScrolle.productsList[index].imageUrl ,
-                          title: ImageAutoScrolle.productsList[index].title,
-                          prix: ImageAutoScrolle.productsList[index].prix,
-                        );
-                      })),
+                  listOfProduct.length < 1
+                      ? const PageIsEmpty(isOnSolde: false)
+                      : GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          // crossAxisSpacing: 2,
+                          padding: EdgeInsets.zero,
+                          crossAxisCount: 2,
+                          childAspectRatio:
+                              __size.width / (__size.height * 0.55),
+                          children:
+                              List.generate(listOfProduct.length, (index) {
+                            return ChangeNotifierProvider.value(
+                                value: listOfProduct[index],
+                                child: const Products());
+                          })),
                 ],
               ),
             ),

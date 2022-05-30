@@ -1,7 +1,9 @@
-class ProductModel {
+import 'package:flutter/cupertino.dart';
+
+class ProductModel with ChangeNotifier{
   final String id, title, imageUrl, productCategoryName;
   final double prix, solde;
-  final bool isOnSolde, isPiece;
+  final bool isOnSolde;
 
   ProductModel(
       {required this.id,
@@ -10,6 +12,5 @@ class ProductModel {
       required this.productCategoryName,
       required this.prix,
       required this.solde,
-      required this.isOnSolde,
-      required this.isPiece});
+      required this.isOnSolde});
 }

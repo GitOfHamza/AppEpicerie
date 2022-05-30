@@ -1,19 +1,15 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/Models/Product.dart';
+import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/PriceOfProduct.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:provider/provider.dart';
 
 class Products extends StatefulWidget {
-  const Products({
-    Key? key,
-    required this.imageUrl,
-    required this.title,
-    required this.prix
-  }) : super(key: key);
-  final String imageUrl, title;
-  final double prix;
+  const Products({Key? key}) : super(key: key);
 
   @override
   State<Products> createState() => _ProductsState();
@@ -37,6 +33,7 @@ class _ProductsState extends State<Products> {
   Widget build(BuildContext context) {
     final Color couleur = MyTools(context).color;
     final Size size = MyTools(context).getScreenSize;
+    final productModel = Provider.of<ProductModel>(context);
 
     return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -46,13 +43,14 @@ class _ProductsState extends State<Products> {
           child: InkWell(
               borderRadius: BorderRadius.circular(18),
               onTap: () {
-                Navigator.pushNamed(context, '/DetailleOfProduct');
+                Navigator.pushNamed(context, '/DetailleOfProduct',
+                    arguments: productModel.id);
               },
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Column(children: [
                   FancyShimmerImage(
-                    imageUrl: widget.imageUrl,
+                    imageUrl: productModel.imageUrl,
                     width: size.width * 0.20,
                     height: size.width * 0.18,
                     boxFit: BoxFit.fill,
@@ -60,61 +58,68 @@ class _ProductsState extends State<Products> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                           Flexible(
-                            flex: 3,
-                            child: Text(
-                              widget.title,
-                              maxLines: 1,
-                              style: TextStyle(
+                      Flexible(
+                        flex: 3,
+                        child: Text(
+                          productModel.title,
+                          maxLines: 1,
+                          style: TextStyle(
                               color: couleur,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
-                                                ),
-                          ),
-                         GestureDetector(
-                          onTap: () {},
-                          child:
-                              Icon(IconlyLight.heart, size: 22, color: couleur),
                         ),
+                      ),
+                      GestureDetector(
+                        onTap: () {},
+                        child:
+                            Icon(IconlyLight.heart, size: 22, color: couleur),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
                   Flexible(
-                    child: Row(children: [
-                      Flexible(
-                        child: PriceNameOfProduct(
-                          quantite: quantiteController.text.isEmpty
-                              ? '0'
-                              : quantiteController.text,
-                          isOnSolde: false,
-                          prix: widget.prix,
-                          // soldePrix: 10,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                        Flexible(
+                          flex: 4,
+                          child: PriceNameOfProduct(
+                            quantite: quantiteController.text.isEmpty
+                                ? '0'
+                                : quantiteController.text,
+                            isOnSolde: productModel.isOnSolde,
+                            prix: productModel.prix,
+                            soldePrix: productModel.solde,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 17),
-                      Flexible(
-                          child: TextFormField(
-                        controller: quantiteController,
-                        key: const ValueKey(10),
-                        style: TextStyle(color: couleur, fontSize: 17),
-                        keyboardType: TextInputType.number,
-                        maxLines: 1,
-                        enabled: true,
-                        onChanged: (valeur) {
-                          setState(() {
-                            quantiteController.text;
-                          });
-                        },
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp('[0-9.]'))
-                        ],
-                      )),
-                      Text(
-                        'KG',
-                        style: TextStyle(
-                            color: couleur, fontWeight: FontWeight.bold),
-                      ),
-                    ]),
+                        const SizedBox(width: 20,),
+                        Flexible(
+                          flex: 1,
+                            child: TextFormField(
+                          controller: quantiteController,
+                          key: const ValueKey(10),
+                          style: TextStyle(color: couleur, fontSize: 17),
+                          keyboardType: TextInputType.number,
+                          maxLines: 1,
+                          enabled: true,
+                          onChanged: (valeur) {
+                            setState(() {
+                              quantiteController.text;
+                            });
+                          },
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp('[0-9.]'))
+                          ],
+                        )),
+                        Text(
+                          'KG',
+                          style: TextStyle(
+                              color: couleur, fontWeight: FontWeight.bold),
+                        ),
+                      ]),
+                    ),
                   ),
                   SizedBox(
                     width: double.infinity,

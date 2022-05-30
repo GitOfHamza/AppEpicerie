@@ -2,7 +2,9 @@ import 'package:card_swiper/card_swiper.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Consts/ImageAutoScrolle.dart';
+import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/Dark_Theme_Provider.dart';
+import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Screens/Categorie.dart';
 import 'package:flutter_application_1/Services/Dark_Theme_Preference.dart';
 import 'package:flutter_application_1/Services/tools.dart';
@@ -23,6 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Size __size = MyTools(context).getScreenSize;
     final Color couleur = MyTools(context).color;
+    final productsProvider = Provider.of<ProductsProvider>(context);
+    List<ProductModel> listOfProduct = productsProvider.getProduct;
+    List<ProductModel>  productOnSolde = productsProvider.getProductOnSale;
     return Scaffold(
       body: ListView(
         children: [
@@ -56,12 +61,25 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(
                 height: __size.height * 0.24,
-                child: ListView.builder(
+                child: productOnSolde.length >=1 ? ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: 5,
+                    itemCount: 4,
                     itemBuilder: (ctx, index) {
-                      return const ProductInfo();
-                    }),
+                      return ChangeNotifierProvider.value(
+                          value: productOnSolde[index],
+                          child: const ProductInfo());
+                    }) : Center(
+                      widthFactor: double.infinity,
+                        child: Text(
+                          'Pas de Produit en Solde pour le moment',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: couleur,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic),
+                        ),
+                      ),
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -94,11 +112,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisCount: 2,
                   childAspectRatio: __size.width / (__size.height * 0.55),
                   children: List.generate(4, (index) {
-                    return Products(
-                      imageUrl: ImageAutoScrolle.productsList[index].imageUrl,
-                      title: ImageAutoScrolle.productsList[index].title,
-                      prix: ImageAutoScrolle.productsList[index].prix,
-                    );
+                    return ChangeNotifierProvider.value(
+                        value: listOfProduct[index], child: const Products());
                   })),
             ],
           ),

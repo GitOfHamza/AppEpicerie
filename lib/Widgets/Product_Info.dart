@@ -1,9 +1,12 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Models/Product.dart';
+import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/PriceOfProduct.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:provider/provider.dart';
 
 class ProductInfo extends StatefulWidget {
   const ProductInfo({Key? key}) : super(key: key);
@@ -15,6 +18,7 @@ class ProductInfo extends StatefulWidget {
 class _ProductInfoState extends State<ProductInfo> {
   @override
   Widget build(BuildContext context) {
+    final productsModel = Provider.of<ProductModel>(context);
     final theme = MyTools(context).getTheme;
     Size size = MyTools(context).getScreenSize;
     Color color = MyTools(context).color;
@@ -26,7 +30,7 @@ class _ProductInfoState extends State<ProductInfo> {
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: () {
-            Navigator.pushNamed(context, '/DetailleOfProduct');
+            Navigator.pushNamed(context, '/DetailleOfProduct', arguments: productsModel.id);
           },
           child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -39,7 +43,7 @@ class _ProductInfoState extends State<ProductInfo> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       FancyShimmerImage(
-                        imageUrl: 'http://assets.stickpng.com/images/580b57fcd9996e24bc43c12b.png',
+                        imageUrl: productsModel.imageUrl,
                         width: size.width * 0.22,
                         height: size.width * 0.20,
                         boxFit: BoxFit.fill,
@@ -81,9 +85,9 @@ class _ProductInfoState extends State<ProductInfo> {
                     ],
                   ),
                   const SizedBox(height: 8,),
-                  const PriceNameOfProduct(isOnSolde: true,prix: 12.99,soldePrix: 10,),
+                  PriceNameOfProduct(isOnSolde: productsModel.isOnSolde,prix: productsModel.prix,soldePrix: productsModel.solde,),
                   const SizedBox(height: 5),
-                  Text('Abricots',style: TextStyle(
+                  Text(productsModel.title,style: TextStyle(
                               color: color,
                               fontSize: 20,
                               fontWeight: FontWeight.bold))

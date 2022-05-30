@@ -38,7 +38,7 @@ class PriceNameOfProduct extends StatelessWidget {
                 '$prix',
                 style: TextStyle(
                     color: couleur,
-                    fontSize: 15,
+                    fontSize: 18,
                     decoration: TextDecoration.lineThrough),
               ),
             ),

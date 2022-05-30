@@ -2,9 +2,12 @@ import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/Models/Product.dart';
+import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/BackLastPage.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:provider/provider.dart';
 
 class DetailleOfProduct extends StatefulWidget {
   const DetailleOfProduct({Key? key}) : super(key: key);
@@ -24,8 +27,17 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
 
   @override
   Widget build(BuildContext context) {
+
     Color couleur = MyTools(context).color;
     Size size = MyTools(context).getScreenSize;
+    final productProvider = Provider.of<ProductsProvider>(context);
+    // final idProduit = ModalRoute.of(context)!.settings.arguments;
+    // final getCurrentProduct = productProvider.getProductById(idProduit.toString());
+    // double usedPrice = getCurrProduct.isOnSale
+    //     ? getCurrProduct.salePrice
+    //     : getCurrProduct.price;
+    // double totalPrice = usedPrice * int.parse(_quantityTextController.text);
+    // bool? _isInCart = cartProvider.getCartItems.containsKey(getCurrProduct.id);
     return Scaffold(
       appBar: AppBar(
           leading: const BackLastPage(),
