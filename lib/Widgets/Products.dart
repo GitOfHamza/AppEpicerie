@@ -6,7 +6,14 @@ import 'package:flutter_application_1/Widgets/PriceOfProduct.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
 class Products extends StatefulWidget {
-  const Products({Key? key}) : super(key: key);
+  const Products({
+    Key? key,
+    required this.imageUrl,
+    required this.title,
+    required this.prix
+  }) : super(key: key);
+  final String imageUrl, title;
+  final double prix;
 
   @override
   State<Products> createState() => _ProductsState();
@@ -45,27 +52,30 @@ class _ProductsState extends State<Products> {
                 padding: const EdgeInsets.all(5.0),
                 child: Column(children: [
                   FancyShimmerImage(
-                    imageUrl:
-                        'http://assets.stickpng.com/images/580b57fcd9996e24bc43c12b.png',
+                    imageUrl: widget.imageUrl,
                     width: size.width * 0.20,
                     height: size.width * 0.18,
                     boxFit: BoxFit.fill,
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                          child: Text(
-                        'Abricots',
-                        style: TextStyle(
-                            color: couleur,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      )),
-                      GestureDetector(
-                        onTap: () {},
-                        child:
-                            Icon(IconlyLight.heart, size: 22, color: couleur),
-                      ),
+                           Flexible(
+                            flex: 3,
+                            child: Text(
+                              widget.title,
+                              maxLines: 1,
+                              style: TextStyle(
+                              color: couleur,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18),
+                                                ),
+                          ),
+                         GestureDetector(
+                          onTap: () {},
+                          child:
+                              Icon(IconlyLight.heart, size: 22, color: couleur),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -73,11 +83,11 @@ class _ProductsState extends State<Products> {
                     child: Row(children: [
                       Flexible(
                         child: PriceNameOfProduct(
-                          quantite: quantiteController.text == null
+                          quantite: quantiteController.text.isEmpty
                               ? '0'
                               : quantiteController.text,
                           isOnSolde: false,
-                          prix: 12.99,
+                          prix: widget.prix,
                           // soldePrix: 10,
                         ),
                       ),

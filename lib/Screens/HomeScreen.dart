@@ -94,7 +94,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisCount: 2,
                   childAspectRatio: __size.width / (__size.height * 0.55),
                   children: List.generate(4, (index) {
-                    return const Products();
+                    return Products(
+                      imageUrl: ImageAutoScrolle.productsList[index].imageUrl,
+                      title: ImageAutoScrolle.productsList[index].title,
+                      prix: ImageAutoScrolle.productsList[index].prix,
+                    );
                   })),
             ],
           ),

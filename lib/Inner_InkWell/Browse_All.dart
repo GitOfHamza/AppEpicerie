@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Consts/ImageAutoScrolle.dart';
 import 'package:flutter_application_1/Services/No%20data.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/BackLastPage.dart';
@@ -86,8 +87,12 @@ class _BrowseAllState extends State<BrowseAll> {
                       padding: EdgeInsets.zero,
                       crossAxisCount: 2,
                       childAspectRatio: __size.width / (__size.height * 0.55),
-                      children: List.generate(16, (index) {
-                        return const Products();
+                      children: List.generate(ImageAutoScrolle.productsList.length, (index) {
+                        return Products(
+                          imageUrl: ImageAutoScrolle.productsList[index].imageUrl ,
+                          title: ImageAutoScrolle.productsList[index].title,
+                          prix: ImageAutoScrolle.productsList[index].prix,
+                        );
                       })),
                 ],
               ),
