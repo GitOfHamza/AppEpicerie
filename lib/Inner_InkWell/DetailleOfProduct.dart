@@ -27,12 +27,12 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
 
   @override
   Widget build(BuildContext context) {
-
     Color couleur = MyTools(context).color;
     Size size = MyTools(context).getScreenSize;
-    final productProvider = Provider.of<ProductsProvider>(context);
-    // final idProduit = ModalRoute.of(context)!.settings.arguments;
-    // final getCurrentProduct = productProvider.getProductById(idProduit.toString());
+    // final productProvider = Provider.of<ProductsProvider>(context);
+    // final idProduit = ModalRoute.of(context)!.settings.arguments as String;
+    // final getCurrentProduct = productProvider.getProductById(idProduit);
+
     // double usedPrice = getCurrProduct.isOnSale
     //     ? getCurrProduct.salePrice
     //     : getCurrProduct.price;
@@ -170,7 +170,7 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                         keyboardType: TextInputType.number,
                         maxLines: 1,
                         decoration: const InputDecoration(
-                          border:  UnderlineInputBorder(),
+                          border: UnderlineInputBorder(),
                         ),
                         textAlign: TextAlign.center,
                         cursorColor: Colors.green,

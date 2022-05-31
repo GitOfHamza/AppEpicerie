@@ -160,8 +160,8 @@ class _UserPageState extends State<UserPage> {
                       Navigator.pushNamed(context, '/WishlistPage');
                     }),
                 _list_infos(
-                    title: 'Vu',
-                    icon: IconlyLight.show,
+                    title: 'Historique',
+                    icon: Icons.history_outlined,
                     onClick: () {
                       Navigator.pushNamed(context, '/VuPage');
                     }),

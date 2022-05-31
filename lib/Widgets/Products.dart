@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
+import 'package:flutter_application_1/Providers/Panier-Provider.dart';
+import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/PriceOfProduct.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -33,7 +35,12 @@ class _ProductsState extends State<Products> {
   Widget build(BuildContext context) {
     final Color couleur = MyTools(context).color;
     final Size size = MyTools(context).getScreenSize;
-    final productModel = Provider.of<ProductModel>(context);
+    final productsModel = Provider.of<ProductModel>(context);
+    final cartProvider = Provider.of<PanierProvider>(context);
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
+    bool? _isInWishlist =
+        wishlistProvider.getWishlistItems.containsKey(productsModel.id);
+    bool? _isInCart = cartProvider.getCartItems.containsKey(productsModel.id);
 
     return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -43,14 +50,14 @@ class _ProductsState extends State<Products> {
           child: InkWell(
               borderRadius: BorderRadius.circular(18),
               onTap: () {
-                Navigator.pushNamed(context, '/DetailleOfProduct',
-                    arguments: productModel.id);
+                // Navigator.pushNamed(context, '/DetailleOfProduct',
+                //     arguments: productsModel.id);
               },
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Column(children: [
                   FancyShimmerImage(
-                    imageUrl: productModel.imageUrl,
+                    imageUrl: productsModel.imageUrl,
                     width: size.width * 0.20,
                     height: size.width * 0.18,
                     boxFit: BoxFit.fill,
@@ -61,7 +68,7 @@ class _ProductsState extends State<Products> {
                       Flexible(
                         flex: 3,
                         child: Text(
-                          productModel.title,
+                          productsModel.title,
                           maxLines: 1,
                           style: TextStyle(
                               color: couleur,
@@ -70,9 +77,16 @@ class _ProductsState extends State<Products> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
-                        child:
-                            Icon(IconlyLight.heart, size: 22, color: couleur),
+                        onTap: () {
+                          wishlistProvider.addRemoveProductToWishlist(
+                              productId: productsModel.id);
+                        },
+                        child: Icon(
+                            _isInWishlist
+                                ? IconlyBold.heart
+                                : IconlyLight.heart,
+                            size: 22,
+                            color: _isInWishlist ? Colors.red : couleur),
                       ),
                     ],
                   ),
@@ -81,51 +95,62 @@ class _ProductsState extends State<Products> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                        Flexible(
-                          flex: 4,
-                          child: PriceNameOfProduct(
-                            quantite: quantiteController.text.isEmpty
-                                ? '0'
-                                : quantiteController.text,
-                            isOnSolde: productModel.isOnSolde,
-                            prix: productModel.prix,
-                            soldePrix: productModel.solde,
-                          ),
-                        ),
-                        const SizedBox(width: 20,),
-                        Flexible(
-                          flex: 1,
-                            child: TextFormField(
-                          controller: quantiteController,
-                          key: const ValueKey(10),
-                          style: TextStyle(color: couleur, fontSize: 17),
-                          keyboardType: TextInputType.number,
-                          maxLines: 1,
-                          enabled: true,
-                          onChanged: (valeur) {
-                            setState(() {
-                              quantiteController.text;
-                            });
-                          },
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp('[0-9.]'))
-                          ],
-                        )),
-                        Text(
-                          'KG',
-                          style: TextStyle(
-                              color: couleur, fontWeight: FontWeight.bold),
-                        ),
-                      ]),
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              flex: 4,
+                              child: PriceNameOfProduct(
+                                quantite: quantiteController.text.isEmpty
+                                    ? '0'
+                                    : quantiteController.text,
+                                isOnSolde: productsModel.isOnSolde,
+                                prix: productsModel.prix,
+                                soldePrix: productsModel.solde,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            Flexible(
+                                flex: 1,
+                                child: TextFormField(
+                                  controller: quantiteController,
+                                  key: const ValueKey(10),
+                                  style:
+                                      TextStyle(color: couleur, fontSize: 17),
+                                  keyboardType: TextInputType.number,
+                                  maxLines: 1,
+                                  enabled: true,
+                                  onChanged: (valeur) {
+                                    setState(() {
+                                      quantiteController.text;
+                                    });
+                                  },
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp('[0-9.]'))
+                                  ],
+                                )),
+                            Text(
+                              'KG',
+                              style: TextStyle(
+                                  color: couleur, fontWeight: FontWeight.bold),
+                            ),
+                          ]),
                     ),
                   ),
                   SizedBox(
                     width: double.infinity,
                     child: TextButton(
-                      onPressed: () {},
-                      child: Text('Ajouter au Panier',
+                      onPressed: _isInCart
+                          ? null
+                          : () {
+                              cartProvider.addProductsToCart(
+                                  productId: productsModel.id,
+                                  quantity: int.parse(quantiteController.text));
+                            },
+                      child: Text(
+                          _isInCart ? 'Déjà au Panier' : 'Ajouter au Panier',
                           style: TextStyle(color: couleur, fontSize: 17),
                           maxLines: 1),
                       style: ButtonStyle(

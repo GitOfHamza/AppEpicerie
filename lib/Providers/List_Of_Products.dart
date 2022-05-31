@@ -6,8 +6,8 @@ class ProductsProvider with ChangeNotifier {
   List<ProductModel> get getProductOnSale =>
       _productsList.where((element) => element.isOnSolde).toList();
 
-  ProductModel getProductById(String currentID) {
-    return _productsList.firstWhere((element) => element.id == currentID);
+  ProductModel? getProductById(String? currentID) {
+    return _productsList.firstWhere((element) => element.id.toUpperCase() == currentID!.toUpperCase());
   }
 
   static final List<ProductModel> _productsList = [
@@ -77,7 +77,7 @@ class ProductsProvider with ChangeNotifier {
       isOnSolde: true,
     ),
     ProductModel(
-      id: 'Chou-fleur',
+      id: 'Chou_fleur',
       title: 'Chou-fleur',
       prix: 8.99,
       solde: 7.99,
@@ -213,7 +213,7 @@ class ProductsProvider with ChangeNotifier {
       isOnSolde: false,
     ),
     ProductModel(
-      id: 'Buk-choy',
+      id: 'Buk_choy',
       title: 'Buk-choy',
       prix: 5.00,
       solde: 3.99,
@@ -222,7 +222,7 @@ class ProductsProvider with ChangeNotifier {
       isOnSolde: true,
     ),
     ProductModel(
-      id: 'Wombok-chou-chinois',
+      id: 'Wombok_chou_chinois',
       title: 'Wombok chou chinois',
       prix: 6.99,
       solde: 0.00,

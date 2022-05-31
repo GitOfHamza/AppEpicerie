@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Providers/Dark_Theme_Provider.dart';
 import 'package:flutter_application_1/Panier/CartPage.dart';
+import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Screens/Categorie.dart';
 import 'package:flutter_application_1/Screens/HomeScreen.dart';
 import 'package:flutter_application_1/Screens/User.dart';
@@ -39,6 +40,9 @@ class _BottomBarState extends State<BottomBar> {
     bool _isDark = themeState.getDarkTheme;
     final tools = MyTools(context);
     Color dynamicColor = tools.color;
+    final cartProvider = Provider.of<PanierProvider>(context);
+    final cartItemsList =
+        cartProvider.getCartItems.values.toList().reversed.toList();
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(
@@ -74,9 +78,15 @@ class _BottomBarState extends State<BottomBar> {
                   shape: BadgeShape.circle,
                   badgeColor: Colors.orange.shade700,
                   borderRadius: BorderRadius.circular(8),
-                  position: BadgePosition.topEnd(top: -12,end: -10),
-                  badgeContent: const Text('1', style: TextStyle(color: Colors.white, fontSize: 13)),
-                  child: Icon(selectIndex == 2 ? IconlyBold.buy : IconlyLight.buy)),
+                  position: BadgePosition.topEnd(top: -12, end: -10),
+                  badgeContent: Text(
+                      cartItemsList.length.toString().isNotEmpty
+                          ? '${cartItemsList.length}'
+                          : '0',
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 13)),
+                  child: Icon(
+                      selectIndex == 2 ? IconlyBold.buy : IconlyLight.buy)),
               label: 'Panier'),
           BottomNavigationBarItem(
               icon:

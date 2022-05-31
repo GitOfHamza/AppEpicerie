@@ -8,7 +8,10 @@ import 'package:flutter_application_1/Inner_InkWell/DetailleOfProduct.dart';
 import 'package:flutter_application_1/Inner_InkWell/Show_All.dart';
 import 'package:flutter_application_1/Orders/OrdersPage.dart';
 import 'package:flutter_application_1/Providers/Dark_Theme_Provider.dart';
+import 'package:flutter_application_1/Providers/History_Provider.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
+import 'package:flutter_application_1/Providers/Panier-Provider.dart';
+import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
 import 'package:flutter_application_1/Screens/HomeScreen.dart';
 import 'package:flutter_application_1/Vu/VuPage.dart';
@@ -49,6 +52,15 @@ class _MyAppState extends State<MyApp> {
         }),
         ChangeNotifierProvider(create: (_) {
           return ProductsProvider();
+        }),
+        ChangeNotifierProvider(create: (_) {
+          return PanierProvider();
+        }),
+        ChangeNotifierProvider(create: (_) {
+          return WishlistProvider();
+        }),
+        ChangeNotifierProvider(create: (_) {
+          return ViewedProductProvider();
         }),
       ],
       child: Consumer<DarkThemeProvider>(

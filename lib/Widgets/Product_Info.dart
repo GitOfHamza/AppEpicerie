@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
+import 'package:flutter_application_1/Providers/Panier-Provider.dart';
+import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/PriceOfProduct.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -18,10 +20,16 @@ class ProductInfo extends StatefulWidget {
 class _ProductInfoState extends State<ProductInfo> {
   @override
   Widget build(BuildContext context) {
+    final productProvider = Provider.of<ProductsProvider>(context);
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
     final productsModel = Provider.of<ProductModel>(context);
     final theme = MyTools(context).getTheme;
     Size size = MyTools(context).getScreenSize;
     Color color = MyTools(context).color;
+    final cartProvider = Provider.of<PanierProvider>(context);
+    bool? _isInCart = cartProvider.getCartItems.containsKey(productsModel.id);
+    bool? _isInWishlist = wishlistProvider.getWishlistItems.containsKey(productsModel.id);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Material(
@@ -30,7 +38,8 @@ class _ProductInfoState extends State<ProductInfo> {
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: () {
-            Navigator.pushNamed(context, '/DetailleOfProduct', arguments: productsModel.id);
+            // Navigator.pushNamed(context, '/DetailleOfProduct',
+            //     arguments: productsModel.id);
           },
           child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -66,17 +75,31 @@ class _ProductInfoState extends State<ProductInfo> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () {},
-                                child: Icon(IconlyLight.bag2,
-                                    size: 22, color: color),
+                                onTap: () {
+                                  cartProvider.addProductsToCart(
+                                      productId: productsModel.id, quantity: 1);
+                                },
+                                child: Icon(
+                                    _isInCart
+                                        ? IconlyBold.bag2
+                                        : IconlyLight.bag2,
+                                    size: 22,
+                                    color: _isInCart ? Colors.green : color),
                               ),
                               const SizedBox(
                                 width: 5,
                               ),
                               GestureDetector(
-                                onTap: () {},
-                                child: Icon(IconlyLight.heart,
-                                    size: 22, color: color),
+                                onTap: () {
+                                  wishlistProvider.addRemoveProductToWishlist(
+                                      productId: productsModel.id);
+                                },
+                                child: Icon(
+                                    _isInWishlist
+                                        ? IconlyBold.heart
+                                        : IconlyLight.heart,
+                                    size: 22,
+                                    color: _isInWishlist ? Colors.red : color),
                               ),
                             ],
                           ),
@@ -84,13 +107,20 @@ class _ProductInfoState extends State<ProductInfo> {
                       )
                     ],
                   ),
-                  const SizedBox(height: 8,),
-                  PriceNameOfProduct(isOnSolde: productsModel.isOnSolde,prix: productsModel.prix,soldePrix: productsModel.solde,),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  PriceNameOfProduct(
+                    isOnSolde: productsModel.isOnSolde,
+                    prix: productsModel.prix,
+                    soldePrix: productsModel.solde,
+                  ),
                   const SizedBox(height: 5),
-                  Text(productsModel.title,style: TextStyle(
-                              color: color,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold))
+                  Text(productsModel.title,
+                      style: TextStyle(
+                          color: color,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold))
                 ],
               )),
         ),
