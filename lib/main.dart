@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Authentification/FOrgetPassword.dart';
 import 'package:flutter_application_1/Authentification/Login.dart';
 import 'package:flutter_application_1/Authentification/Register.dart';
 import 'package:flutter_application_1/Consts/Theme_data.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Inner_InkWell/Browse_All.dart';
 import 'package:flutter_application_1/Inner_InkWell/DetailleOfProduct.dart';
 import 'package:flutter_application_1/Inner_InkWell/Show_All.dart';
@@ -20,7 +23,9 @@ import 'package:provider/provider.dart';
 
 /** Welcome to Main File  */
 
-void main() => runApp(MyApp());
+void main() async {
+  return runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   MyApp({Key? key}) : super(key: key);
@@ -43,35 +48,64 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
+  final Future<FirebaseApp> _firebaseInitialisation = Firebase.initializeApp();
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) {
-          return darkThemeProvider;
-        }),
-        ChangeNotifierProvider(create: (_) {
-          return ProductsProvider();
-        }),
-        ChangeNotifierProvider(create: (_) {
-          return PanierProvider();
-        }),
-        ChangeNotifierProvider(create: (_) {
-          return WishlistProvider();
-        }),
-        ChangeNotifierProvider(create: (_) {
-          return ViewedProductProvider();
-        }),
-      ],
-      child: Consumer<DarkThemeProvider>(
-        builder: (context, themeProvider, child) => MaterialApp(
-          initialRoute: '/',
-          onGenerateRoute: (settings) => RouteGenarator.generateRoute(settings),
-          debugShowCheckedModeBanner: false,
-          theme: Styles.themeData(themeProvider.getDarkTheme, context),
-          home: const BottomBar(),
-        ),
-      ),
+    WidgetsFlutterBinding.ensureInitialized();
+
+    return FutureBuilder(
+      future: _firebaseInitialisation,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          const MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: Center(
+                child: Text('Une erreur s\'est produite'),
+              ),
+            ),
+          );
+        }
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) {
+              return darkThemeProvider;
+            }),
+            ChangeNotifierProvider(create: (_) {
+              return ProductsProvider();
+            }),
+            ChangeNotifierProvider(create: (_) {
+              return PanierProvider();
+            }),
+            ChangeNotifierProvider(create: (_) {
+              return WishlistProvider();
+            }),
+            ChangeNotifierProvider(create: (_) {
+              return ViewedProductProvider();
+            }),
+          ],
+          child: Consumer<DarkThemeProvider>(
+            builder: (context, themeProvider, child) => MaterialApp(
+              initialRoute: '/',
+              onGenerateRoute: (settings) =>
+                  RouteGenarator.generateRoute(settings),
+              debugShowCheckedModeBanner: false,
+              theme: Styles.themeData(themeProvider.getDarkTheme, context),
+              home: user == null ? const LoginPage() : const BottomBar(),
+            ),
+          ),
+        );
+      },
     );
   }
 }

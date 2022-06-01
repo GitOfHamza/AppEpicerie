@@ -3,19 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
 class AlertMessage {
-  static Future<void> messageDialog({
-    required String title,
-    required String subTitle,
-    required Function fonction,
-    required BuildContext context
-  }) async {
+  static Future<void> messageDialog(
+      {required String title,
+      final String? subTitle,
+      required Function fonction,
+      required BuildContext context}) async {
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            children:[
+            children: [
               const Icon(
                 IconlyBold.profile,
                 color: Colors.red,
@@ -27,7 +26,7 @@ class AlertMessage {
                       fontWeight: FontWeight.bold)),
               const SizedBox(width: 8),
               Text(title,
-                  style:const TextStyle(
+                  style: const TextStyle(
                     fontSize: 15,
                   ))
             ],
@@ -43,6 +42,39 @@ class AlertMessage {
                   fonction();
                 },
                 child: const Text('Oui')),
+          ],
+        );
+      },
+    );
+  }
+
+  static Future<void> messageError(
+      {required String subTitle, required BuildContext context}) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.error_outline_outlined,
+                color: Colors.red,
+              ),
+              Text('\n' + subTitle,
+                  maxLines: 5,
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ))
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('OK')),
           ],
         );
       },

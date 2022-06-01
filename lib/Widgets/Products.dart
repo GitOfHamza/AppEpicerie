@@ -1,10 +1,13 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
+import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/PriceOfProduct.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -41,6 +44,7 @@ class _ProductsState extends State<Products> {
     bool? _isInWishlist =
         wishlistProvider.getWishlistItems.containsKey(productsModel.id);
     bool? _isInCart = cartProvider.getCartItems.containsKey(productsModel.id);
+    final User? user = auth.currentUser;
 
     return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -78,8 +82,15 @@ class _ProductsState extends State<Products> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          wishlistProvider.addRemoveProductToWishlist(
-                              productId: productsModel.id);
+                          if (user == null) {
+                            AlertMessage.messageError(
+                                subTitle: 'Veuillez s\'authentifier!',
+                                context: context);
+                          } else {
+                            wishlistProvider.addRemoveProductToWishlist(
+                                productId: productsModel.id);
+                          }
+                          
                         },
                         child: Icon(
                             _isInWishlist
