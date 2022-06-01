@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "26300737054",
+    "project_id": "app-epicerie-4fd4a",
+    "storage_bucket": "app-epicerie-4fd4a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:26300737054:android:2ed4f2c8e781d86bfab00f",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "26300737054-f2rug12n9u26t0ho1v8agcb6c0ha0flc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjxDbsK6khxyEUHbpynx15cs9A0pw4i-k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "26300737054-f2rug12n9u26t0ho1v8agcb6c0ha0flc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
