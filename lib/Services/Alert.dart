@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 
 class AlertMessage {
@@ -11,6 +12,7 @@ class AlertMessage {
     await showDialog(
       context: context,
       builder: (context) {
+        final Color couleur = MyTools(context).color;
         return AlertDialog(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -36,12 +38,18 @@ class AlertMessage {
                 onPressed: () {
                   Navigator.of(context).pop(true);
                 },
-                child: const Text('Annuler')),
+                child: Text('Annuler',
+                    style: TextStyle(
+                      color: couleur,
+                    ))),
             TextButton(
                 onPressed: () {
                   fonction();
                 },
-                child: const Text('Oui')),
+                child: Text('Oui',
+                    style: TextStyle(
+                      color: couleur,
+                    ))),
           ],
         );
       },
@@ -53,14 +61,26 @@ class AlertMessage {
     await showDialog(
       context: context,
       builder: (context) {
+        final Color couleur = MyTools(context).color;
         return AlertDialog(
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.error_outline_outlined,
-                color: Colors.red,
+              Row(
+                children: const [
+                  Icon(
+                    Icons.error_outline_outlined,
+                    color: Colors.red,
+                  ),
+                  Text(' Erreur... ',
+                      maxLines: 5,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      )),
+                ],
               ),
               Text('\n' + subTitle,
                   maxLines: 5,
@@ -74,7 +94,47 @@ class AlertMessage {
                 onPressed: () {
                   Navigator.of(context).pop(true);
                 },
-                child: const Text('OK')),
+                child: Text('OK',
+                    style: TextStyle(
+                      color: couleur,
+                    ))),
+          ],
+        );
+      },
+    );
+  }
+
+
+  static Future<void> notication(
+      {required String contenue, required BuildContext context}) async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        final Color couleur = MyTools(context).color;
+        return AlertDialog(
+          title: Flexible(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(contenue,
+                    maxLines: 5,
+                    style: const TextStyle(
+                      fontSize: 17,
+                    ))
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text('OK',
+                    style: TextStyle(
+                      color: couleur,
+                    ))),
           ],
         );
       },

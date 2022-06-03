@@ -1,4 +1,5 @@
 import 'package:card_swiper/card_swiper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/gestures.dart';
@@ -7,6 +8,8 @@ import 'package:flutter_application_1/Consts/ImageAutoScrolle.dart';
 import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
 import 'package:flutter_application_1/Services/Alert.dart';
+import 'package:flutter_application_1/Services/Position_GPS.dart';
+// import 'package:flutter_application_1/Services/Cryptage.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/SubmitButton.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -43,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   //   Connect to FireBase Authentification
   // final FirebaseAuth auth = FirebaseAuth.instance;
-
+  bool cherchePosition = false;
   bool _isLoading = false;
   void _submitFormOnRegister() async {
     final isValid = _formKey.currentState!.validate();
@@ -59,9 +62,23 @@ class _RegisterPageState extends State<RegisterPage> {
         await auth.createUserWithEmailAndPassword(
             email: _emailTextController.text.toLowerCase().trim(),
             password: _passTextController.text.trim());
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-               builder: (context) => const BottomBar(),
-            ));
+        final User? user = auth.currentUser;
+        final _uid = user!.uid;
+        user.updateDisplayName(_fullNameController.text);
+        user.reload();
+        await FirebaseFirestore.instance.collection('clients').doc(_uid).set({
+          'id': _uid,
+          'name': _fullNameController.text,
+          'email': _emailTextController.text.toLowerCase(),
+          // 'password': CryptagePassword().cryptPassword(_passTextController),
+          'shipping-address': _addressTextController.text,
+          'userWish': [],
+          'userCart': [],
+          'createdAt': Timestamp.now(),
+        });
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => const BottomBar(),
+        ));
         print('-------------------------------enregistré avec succès');
       } on FirebaseException catch (erreur) {
         setState(() {
@@ -246,8 +263,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             },
                             child: Icon(
                               _obscureText
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                               color: Colors.white,
                             ),
                           ),
@@ -283,16 +300,44 @@ class _RegisterPageState extends State<RegisterPage> {
                         style: const TextStyle(color: Colors.white),
                         maxLines: 2,
                         textAlign: TextAlign.start,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
+                          suffixIcon: Visibility(
+                            visible: _addressTextController.text.isEmpty,
+                            child: InkWell(
+                                onTap: () async {
+                                  setState(() {
+                                    cherchePosition = !cherchePosition;
+                                  });
+                                  await CurrentPosition().getCurrentLocation(
+                                      _addressTextController, context);
+                                  setState(() {
+                                    cherchePosition = !cherchePosition;
+                                  });
+                                },
+                                child: Column(
+                                  children: [
+                                    cherchePosition
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )
+                                        : const Icon(Icons.location_on_outlined,
+                                            color: Colors.white),
+                                    const Text(
+                                      'Position\nactuelle',
+                                      style: TextStyle(fontSize: 12),
+                                    )
+                                  ],
+                                )),
+                          ),
                           hintText: 'Adresse de livraison',
-                          hintStyle: TextStyle(color: Colors.white),
-                          enabledBorder: UnderlineInputBorder(
+                          hintStyle: const TextStyle(color: Colors.white),
+                          enabledBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.white),
                           ),
-                          focusedBorder: UnderlineInputBorder(
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.white),
                           ),
-                          errorBorder: UnderlineInputBorder(
+                          errorBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.red),
                           ),
                         ),
@@ -305,7 +350,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 _isLoading
                     ? const Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
                       )
                     : SubmitButton(
                         textButton: 'Inscrivez-vous',

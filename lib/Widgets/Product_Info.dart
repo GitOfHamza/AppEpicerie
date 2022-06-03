@@ -111,7 +111,6 @@ class _ProductInfoState extends State<ProductInfo> {
                                         context: context);
                                     return;
                                   }
-                                  print('UUUUUUUUUUUUUUUUUUUU : ${user.uid}');
                                   wishlistProvider.addRemoveProductToWishlist(
                                       productId: productsModel.id);
                                 },

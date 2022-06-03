@@ -1,10 +1,15 @@
 import 'package:card_swiper/card_swiper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Consts/ImageAutoScrolle.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
+import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/BackLastPage.dart';
 import 'package:flutter_application_1/Widgets/SubmitButton.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ForgetPasswordPage extends StatefulWidget {
   const ForgetPasswordPage({Key? key}) : super(key: key);
@@ -27,13 +32,43 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   void _submitFormOfForgetPassword() {
     final isValid = _keyForm.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if (isValid) {
-      print('Le Text est Bien Validé ################');
-    }
   }
 
   bool _isLoading = false;
-  void _forgetPassFCT() async {}
+  void _forgetPassFCT() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      await auth.sendPasswordResetEmail(
+          email: _emailTextController.text.toLowerCase().trim());
+      // AlertMessage.notication(
+      //     contenue: 'Veuillez consultez votre Boite-Email', context: context);
+      Fluttertoast.showToast(
+        msg: "Veuillez consultez votre Boite-Email",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 2,
+        backgroundColor: Colors.grey.shade600,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    } on FirebaseException catch (erreur) {
+      setState(() {
+        _isLoading = false;
+      });
+      AlertMessage.messageError(subTitle: '$erreur', context: context);
+    } catch (erreur) {
+      setState(() {
+        _isLoading = false;
+      });
+      AlertMessage.messageError(subTitle: '$erreur', context: context);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,15 +121,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                   onEditingComplete: () {
                     _submitFormOfForgetPassword();
                   },
-                  validator: (valeur) {
-                    if (valeur!.isEmpty ||
-                        !valeur.contains('@') ||
-                        !valeur.contains('.')) {
-                      return 'S\'il vous plaît, mettez une adresse email valide';
-                    } else {
-                      return null;
-                    }
-                  },
+                  validator: (valeur) {},
                   style: const TextStyle(color: Colors.white, fontSize: 21),
                   decoration: const InputDecoration(
                     hintText: 'Email adresse',
@@ -115,8 +142,16 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                 SubmitButton(
                   textButton: 'Réinitialiser maintenant',
                   fonction: () {
-                    // _submitFormOfForgetPassword();
-                    _forgetPassFCT();
+                    if (_emailTextController.text.isEmpty ||
+                        !_emailTextController.text.contains('@') ||
+                        !_emailTextController.text.contains('.')) {
+                      AlertMessage.messageError(
+                          subTitle:
+                              'S\'il vous plaît, mettez une adresse email valide',
+                          context: context);
+                    } else {
+                      _forgetPassFCT();
+                    }
                   },
                 ),
               ],

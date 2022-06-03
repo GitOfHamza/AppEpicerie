@@ -1,8 +1,12 @@
 import 'package:card_swiper/card_swiper.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Consts/ImageAutoScrolle.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
+import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
+import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Widgets/GoogleButton.dart';
 import 'package:flutter_application_1/Widgets/SubmitButton.dart';
 
@@ -19,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final passwordFocus = FocusNode();
   final _formKey = GlobalKey<FormState>();
   var _isObscure = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -28,11 +33,39 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _submitFormOfLogin() {
+  void _submitFormOfLogin() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
+
+    // Authentification du client gérer par FireBase
     if (isValid) {
-      print('Le Text est Bien Validé ################');
+      _formKey.currentState!.save();
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        await auth.signInWithEmailAndPassword(
+            email: emailController.text.toLowerCase().trim(),
+            password: passwordController.text.trim());
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => const BottomBar(),
+        ));
+        print('-------------------------------enregistré avec succès');
+      } on FirebaseException catch (erreur) {
+        setState(() {
+          _isLoading = false;
+        });
+        AlertMessage.messageError(subTitle: '$erreur', context: context);
+      } catch (erreur) {
+        setState(() {
+          _isLoading = false;
+        });
+        AlertMessage.messageError(subTitle: '$erreur', context: context);
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -70,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                   const Text(
                     'Bienvenue sur votre Epicerie',
                     style: TextStyle(
-                      // fontFamily: 'Satisfy',
+                        // fontFamily: 'Satisfy',
                         color: Colors.white,
                         fontSize: 25,
                         fontWeight: FontWeight.bold),
@@ -192,15 +225,21 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(
                     height: 30,
                   ),
-                  SubmitButton(
-                      textButton: 'Se Connecter',
-                      fonction: () {
-                        _submitFormOfLogin();
-                      }),
+                  _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        )
+                      : SubmitButton(
+                          textButton: 'Se Connecter',
+                          fonction: () {
+                            _submitFormOfLogin();
+                          }),
                   const SizedBox(
                     height: 15,
                   ),
-                  const GoogleButton(),
+                  GoogleButton(),
                   const SizedBox(
                     height: 10,
                   ),
@@ -236,7 +275,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SubmitButton(
                     textButton: 'Continuer en tant qu\'invité',
-                    fonction: () {},
+                    fonction: () {
+                      Navigator.pushNamed(context, '/');
+                    },
                     couleur: Colors.black87,
                   ),
                   const SizedBox(

@@ -101,7 +101,9 @@ class _MyAppState extends State<MyApp> {
                   RouteGenarator.generateRoute(settings),
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeProvider.getDarkTheme, context),
-              home: user == null ? const LoginPage() : const BottomBar(),
+              home:
+                  //  user == null ? const LoginPage() :
+                  const BottomBar(),
             ),
           ),
         );
