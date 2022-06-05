@@ -22,11 +22,13 @@ class Products extends StatefulWidget {
 
 class _ProductsState extends State<Products> {
   final quantiteController = TextEditingController();
+
   @override
   void initState() {
     quantiteController.text = '1';
     super.initState();
   }
+ 
 
   @override
   void dispose() {
@@ -90,7 +92,6 @@ class _ProductsState extends State<Products> {
                             wishlistProvider.addRemoveProductToWishlist(
                                 productId: productsModel.id);
                           }
-                          
                         },
                         child: Icon(
                             _isInWishlist
@@ -112,7 +113,7 @@ class _ProductsState extends State<Products> {
                               flex: 4,
                               child: PriceNameOfProduct(
                                 quantite: quantiteController.text.isEmpty
-                                    ? '0'
+                                    ? '1'
                                     : quantiteController.text,
                                 isOnSolde: productsModel.isOnSolde,
                                 prix: productsModel.prix,

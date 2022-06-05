@@ -17,13 +17,15 @@ import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
 import 'package:flutter_application_1/Screens/HomeScreen.dart';
+import 'package:flutter_application_1/Services/fetch_Screen.dart';
 import 'package:flutter_application_1/Vu/VuPage.dart';
 import 'package:flutter_application_1/Wishlist/WishlistPage.dart';
 import 'package:provider/provider.dart';
 
 /** Welcome to Main File  */
 
-void main() async {
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   return runApp(MyApp());
 }
 
@@ -52,8 +54,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsFlutterBinding.ensureInitialized();
-
     return FutureBuilder(
       future: _firebaseInitialisation,
       builder: (context, snapshot) {
@@ -103,7 +103,7 @@ class _MyAppState extends State<MyApp> {
               theme: Styles.themeData(themeProvider.getDarkTheme, context),
               home:
                   //  user == null ? const LoginPage() :
-                  const BottomBar(),
+                  const FetchScreen(),
             ),
           ),
         );
