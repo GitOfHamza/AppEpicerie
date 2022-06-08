@@ -8,6 +8,7 @@ import 'package:flutter_application_1/Consts/Theme_data.dart';
 import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Inner_InkWell/Browse_All.dart';
 import 'package:flutter_application_1/Inner_InkWell/DetailleOfProduct.dart';
+import 'package:flutter_application_1/Inner_InkWell/Search_From_Cat%C3%A9gorie.dart';
 import 'package:flutter_application_1/Inner_InkWell/Show_All.dart';
 import 'package:flutter_application_1/Orders/OrdersPage.dart';
 import 'package:flutter_application_1/Providers/Dark_Theme_Provider.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_application_1/Providers/History_Provider.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
+import 'package:flutter_application_1/Providers/order_provider.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
 import 'package:flutter_application_1/Screens/HomeScreen.dart';
 import 'package:flutter_application_1/Services/fetch_Screen.dart';
@@ -93,6 +95,9 @@ class _MyAppState extends State<MyApp> {
             ChangeNotifierProvider(create: (_) {
               return ViewedProductProvider();
             }),
+            ChangeNotifierProvider(create: (_) {
+              return OrdersProvider();
+            }),
           ],
           child: Consumer<DarkThemeProvider>(
             builder: (context, themeProvider, child) => MaterialApp(
@@ -117,6 +122,8 @@ class _MyAppState extends State<MyApp> {
 class RouteGenarator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case '../':
+        return MaterialPageRoute(builder: (context) => const FetchScreen());
       case '/':
         return MaterialPageRoute(builder: (context) => const HomeScreen());
       case '/All_Soldes':
@@ -126,6 +133,9 @@ class RouteGenarator {
       case '/DetailleOfProduct':
         return MaterialPageRoute(
             builder: (context) => const DetailleOfProduct());
+      case 'ProductByCategory':
+        return MaterialPageRoute(
+            builder: (context) => const ProductByCategory());
       case '/WishlistPage':
         return MaterialPageRoute(builder: (context) => const WishlistPage());
       case '/OrdersPage':

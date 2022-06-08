@@ -5,6 +5,7 @@ import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
+import 'package:flutter_application_1/Providers/order_provider.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -23,7 +24,22 @@ class _FetchScreenState extends State<FetchScreen> {
     Future.delayed(const Duration(microseconds: 5), () async {
       final productsProvider =
           Provider.of<ProductsProvider>(context, listen: false);
-      await productsProvider.fetchProducts();
+      final cartProvider = Provider.of<PanierProvider>(context, listen: false);
+      final favoriteProvider =
+          Provider.of<WishlistProvider>(context, listen: false);
+      final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+      final User? user = auth.currentUser;
+      if (user == null) {
+        await productsProvider.fetchProducts();
+        cartProvider.clearCart();
+        favoriteProvider.clearWishlist();
+      } else {
+        await productsProvider.fetchProducts();
+        await cartProvider.fetchCart();
+        await favoriteProvider.fetchWishlist();
+        await ordersProvider.fetchOrders();
+      }
+
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (ctx) => const BottomBar(),
       ));

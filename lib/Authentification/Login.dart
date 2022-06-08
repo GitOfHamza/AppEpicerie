@@ -7,6 +7,7 @@ import 'package:flutter_application_1/Consts/ImageAutoScrolle.dart';
 import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
 import 'package:flutter_application_1/Services/Alert.dart';
+import 'package:flutter_application_1/Services/fetch_Screen.dart';
 import 'package:flutter_application_1/Widgets/GoogleButton.dart';
 import 'package:flutter_application_1/Widgets/SubmitButton.dart';
 
@@ -47,10 +48,10 @@ class _LoginPageState extends State<LoginPage> {
         await auth.signInWithEmailAndPassword(
             email: emailController.text.toLowerCase().trim(),
             password: passwordController.text.trim());
+        
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const BottomBar(),
+          builder: (context) => const FetchScreen(),
         ));
-        print('-------------------------------enregistré avec succès');
       } on FirebaseException catch (erreur) {
         setState(() {
           _isLoading = false;
@@ -276,7 +277,7 @@ class _LoginPageState extends State<LoginPage> {
                   SubmitButton(
                     textButton: 'Continuer en tant qu\'invité',
                     fonction: () {
-                      Navigator.pushNamed(context, '/');
+                      Navigator.pushNamed(context, '../');
                     },
                     couleur: Colors.black87,
                   ),

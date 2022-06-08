@@ -4,6 +4,7 @@ import 'package:flutter_application_1/Widgets/Categorie_Widget.dart';
 
 class CategoriePage extends StatelessWidget {
   CategoriePage({Key? key}) : super(key: key);
+  
   List<Map<String, dynamic>> catInfo = [
     {
       'imgPath' : 'assets/images/Fruits.jpg',

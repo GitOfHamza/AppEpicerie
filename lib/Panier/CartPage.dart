@@ -1,12 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Panier/CartWidget.dart';
+import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Providers/Panier-Provider.dart';
+import 'package:flutter_application_1/Providers/order_provider.dart';
 import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/EmptyPage.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({Key? key}) : super(key: key);
@@ -18,8 +25,19 @@ class CartPage extends StatelessWidget {
     final cartProvider = Provider.of<PanierProvider>(context);
     final cartItemsList =
         cartProvider.getCartItems.values.toList().reversed.toList();
+    final productProvider = Provider.of<ProductsProvider>(context);
+    final ordersProvider = Provider.of<OrdersProvider>(context);
+    // final ordersProvider = Provider.of<OrdersProvider>(ctx);
+    double total = 0.0;
+    cartProvider.getCartItems.forEach((key, value) {
+      final getCurrentProduct = productProvider.getProductById(value.productId);
+      total += (getCurrentProduct!.isOnSolde
+              ? getCurrentProduct.solde
+              : getCurrentProduct.prix) *
+          value.quantity;
+    });
 
-    return cartItemsList.isEmpty
+    return cartItemsList.isEmpty || user == null
         ? EmptyPage(
             imagePath: 'assets/images/ensembleVide.png',
             message: 'Pas encore d\'articles dans votre panier',
@@ -29,10 +47,11 @@ class CartPage extends StatelessWidget {
             })
         : Scaffold(
             appBar: AppBar(
+              automaticallyImplyLeading: false,
               elevation: 0,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               title: Text(
-                'Cart (${cartItemsList.length})',
+                'Panier (${cartItemsList.length})',
                 style: TextStyle(color: couleur, fontWeight: FontWeight.bold),
               ),
               actions: [
@@ -42,7 +61,7 @@ class CartPage extends StatelessWidget {
                           title: 'Voullez vous vidé le panier?',
                           subTitle: '',
                           fonction: () {
-                            cartProvider.clearCart();
+                            cartProvider.clearOnLigneCart();
                             if (Navigator.canPop(context)) {
                               Navigator.pop(context);
                             }
@@ -68,9 +87,51 @@ class CartPage extends StatelessWidget {
                             color: Colors.green,
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
-                              onTap: () {
-                                // Navigator.pushNamed(
-                                //     context, '/DetailleOfProduct');
+                              onTap: () async {
+                                User? user = auth.currentUser;
+                                final orderId = const Uuid().v4();
+                                final productProvider =
+                                    Provider.of<ProductsProvider>(context,
+                                        listen: false);
+
+                                cartProvider.getCartItems
+                                    .forEach((key, value) async {
+                                  final getCurrentProduct =
+                                      productProvider.getProductById(
+                                    value.productId,
+                                  );
+                                  try {
+                                    await FirebaseFirestore.instance
+                                        .collection('ligneCommandes')
+                                        .doc(orderId)
+                                        .set({
+                                      'idLigneCommande': orderId,
+                                      'idClient': user!.uid,
+                                      'idProduit': value.productId,
+                                      'prix': (getCurrentProduct!.isOnSolde
+                                              ? getCurrentProduct.solde
+                                              : getCurrentProduct.prix) *
+                                          value.quantity,
+                                      'prixTotal': total,
+                                      'quantite': value.quantity,
+                                      'imageUrl': getCurrentProduct.imageUrl,
+                                      'userName': user.displayName,
+                                      'dateCommande': Timestamp.now(),
+                                    });
+                                    await cartProvider.clearOnLigneCart();
+                                    cartProvider.clearCart();
+                                    ordersProvider.fetchOrders();
+                                    await Fluttertoast.showToast(
+                                      msg: "Votre commande a été enregistrée",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                    );
+                                  } catch (error) {
+                                    AlertMessage.messageError(
+                                        subTitle: error.toString(),
+                                        context: context);
+                                  } finally {}
+                                });
                               },
                               borderRadius: BorderRadius.circular(12),
                               child: const Padding(
@@ -89,7 +150,7 @@ class CartPage extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'Total: 110 DH',
+                              'Total: ${total.toStringAsFixed(2)} DH',
                               style: TextStyle(
                                   fontSize: 20,
                                   color: couleur,

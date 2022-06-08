@@ -1,4 +1,5 @@
 // import 'dart:html';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +22,10 @@ class CategoriesWidget extends StatelessWidget {
     double _screenWidth = MediaQuery.of(context).size.width;
     final Color color = themeState.getDarkTheme ? Colors.white : Colors.black;
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        // Navigator.pushNamed(context, 'ProductByCategory', arguments: catText);
+        // RouteSettings(name: 'ProductByCategory', arguments: catText);
+      },
       child: Container(
         height: _screenWidth * 0.65,
         width: _screenWidth * 0.4,
@@ -37,7 +41,10 @@ class CategoriesWidget extends StatelessWidget {
               height: _screenWidth * 0.3,
               width: _screenWidth * 0.47,
               decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(17),topRight: Radius.circular(17),),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(17),
+                    topRight: Radius.circular(17),
+                  ),
                   // BorderRadius.circular(17),
                   image: DecorationImage(
                     image: AssetImage(

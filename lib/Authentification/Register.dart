@@ -9,6 +9,7 @@ import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
 import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/Position_GPS.dart';
+import 'package:flutter_application_1/Services/fetch_Screen.dart';
 // import 'package:flutter_application_1/Services/Cryptage.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/SubmitButton.dart';
@@ -72,14 +73,13 @@ class _RegisterPageState extends State<RegisterPage> {
           'email': _emailTextController.text.toLowerCase(),
           // 'password': CryptagePassword().cryptPassword(_passTextController),
           'shipping-address': _addressTextController.text,
-          'userWish': [],
-          'userCart': [],
-          'createdAt': Timestamp.now(),
+          'favorites': [],
+          'panier': [],
+          'dateInscription': Timestamp.now(),
         });
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const BottomBar(),
+          builder: (context) => const FetchScreen(),
         ));
-        print('-------------------------------enregistré avec succès');
       } on FirebaseException catch (erreur) {
         setState(() {
           _isLoading = false;

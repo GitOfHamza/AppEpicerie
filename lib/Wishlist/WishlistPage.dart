@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Panier/CartWidget.dart';
 import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
 import 'package:flutter_application_1/Services/Alert.dart';
@@ -22,7 +23,7 @@ class WishlistPage extends StatelessWidget {
     final wishlistProvider = Provider.of<WishlistProvider>(context);
     final wishlistItemsList =
         wishlistProvider.getWishlistItems.values.toList().reversed.toList();
-    return wishlistItemsList.isEmpty
+    return wishlistItemsList.isEmpty || user == null
         ? EmptyPage(
             imagePath: 'assets/images/ensembleVide.png',
             message: 'Explorez plus et présélectionnez certains articles',
@@ -47,7 +48,7 @@ class WishlistPage extends StatelessWidget {
                           title: 'Voullez vous vidé cette page?',
                           subTitle: '',
                           fonction: () {
-                            wishlistProvider.clearWishlist();
+                            wishlistProvider.clearOnLigneWishlist();
                             if (Navigator.canPop(context)) {
                               Navigator.pop(context);
                             }

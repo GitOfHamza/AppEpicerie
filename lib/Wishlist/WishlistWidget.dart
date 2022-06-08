@@ -1,18 +1,30 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Models/Wishlist_Model.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
+import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
-class WishlistWidget extends StatelessWidget {
+class WishlistWidget extends StatefulWidget {
   const WishlistWidget({Key? key}) : super(key: key);
 
   @override
+  State<WishlistWidget> createState() => _WishlistWidgetState();
+}
+
+class _WishlistWidgetState extends State<WishlistWidget> {
+  bool loadingPanier = false;
+  
+  @override
+  bool loadingFav = false;
   Widget build(BuildContext context) {
     Color couleur = MyTools(context).color;
     Size size = MyTools(context).getScreenSize;
@@ -65,33 +77,132 @@ class WishlistWidget extends StatelessWidget {
                               children: [
                                 const Spacer(),
                                 GestureDetector(
-                                    onTap: () {
-                                      cartProvider.addProductsToCart(
-                                          productId: getCurrentProduct.id,
-                                          quantity: 1);
+                                    onTap: () async {
+                                      final User? user = auth.currentUser;
+                                      if (user == null) {
+                                        AlertMessage.messageError(
+                                            subTitle:
+                                                'Veuillez s\'authentifier!',
+                                            context: context);
+                                        return;
+                                      }
+                                      if (_isInCart) {
+                                        await Fluttertoast.showToast(
+                                          msg: "L'article est déjà au panier",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                        );
+                                        return;
+                                      } else {
+                                        try {
+                                          setState(() {
+                                            loadingPanier = true;
+                                          });
+                                          await PanierProvider
+                                              .addProductsToCart(
+                                                  context: context,
+                                                  productId: getCurrentProduct.id,
+                                                  quantity: 1);
+                                          await cartProvider.fetchCart();
+                                        } catch (error) {
+                                          AlertMessage.messageError(
+                                              subTitle: error.toString(),
+                                              context: context);
+                                        } finally {
+                                          setState(() {
+                                            loadingPanier = false;
+                                          });
+                                        }
+                                      }
                                     },
-                                    child: Icon(
-                                      _isInCart
-                                          ? IconlyBold.bag2
-                                          : IconlyLight.bag2,
-                                      size: 22,
-                                      color: _isInCart ? Colors.green : couleur,
-                                    )),
+                                    child: loadingPanier == true
+                                        ? Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: SizedBox(
+                                                height: 15,
+                                                width: 15,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: couleur,
+                                                  strokeWidth: 2,
+                                                )),
+                                          )
+                                        : Icon(
+                                            _isInCart
+                                                ? IconlyBold.bag2
+                                                : IconlyLight.bag2,
+                                            size: 22,
+                                            color: _isInCart
+                                                ? Colors.green
+                                                : couleur,
+                                          )),
                                 const SizedBox(
                                   width: 12,
                                 ),
                                 GestureDetector(
-                                  onTap: () {
-                                    wishlistProvider.addRemoveProductToWishlist(
-                                        productId: getCurrentProduct.id);
+                                  onTap: () async {
+                                    setState(() {
+                                      loadingFav = true;
+                                    });
+                                    try {
+                                      final User? user = auth.currentUser;
+
+                                      if (user == null) {
+                                        AlertMessage.messageError(
+                                            subTitle:
+                                                'Aucun utilisateur trouvé, veuillez d\'abord vous connecter',
+                                            context: context);
+                                        return;
+                                      }
+                                      if (_isInWishlist == false &&
+                                          _isInWishlist != null) {
+                                        await WishlistProvider
+                                            .addProductToWishlist(
+                                                context: context,
+                                                productId:
+                                                    getCurrentProduct.id);
+                                        await cartProvider.fetchCart();
+                                      } else {
+                                        await wishlistProvider.removeItem(
+                                            wishlistId: wishlistProvider
+                                                .getWishlistItems[
+                                                    getCurrentProduct.id]!
+                                                .id,
+                                            productId: getCurrentProduct.id);
+                                      }
+                                      await wishlistProvider.fetchWishlist();
+                                      setState(() {
+                                        loadingFav = false;
+                                      });
+                                    } catch (error) {
+                                      AlertMessage.messageError(
+                                          subTitle: error.toString(),
+                                          context: context);
+                                    } finally {
+                                      setState(() {
+                                        loadingFav = false;
+                                      });
+                                    }
                                   },
-                                  child: Icon(
-                                      _isInWishlist
-                                          ? IconlyBold.heart
-                                          : IconlyLight.heart,
-                                      size: 22,
-                                      color:
-                                          _isInWishlist ? Colors.red : couleur),
+                                  child: loadingFav
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: SizedBox(
+                                              height: 15,
+                                              width: 15,
+                                              child: CircularProgressIndicator(
+                                                color: couleur,
+                                                strokeWidth: 2,
+                                              )),
+                                        )
+                                      : Icon(
+                                          _isInWishlist
+                                              ? IconlyBold.heart
+                                              : IconlyLight.heart,
+                                          size: 22,
+                                          color: _isInWishlist
+                                              ? Colors.red
+                                              : couleur),
                                 ),
                               ],
                             ),

@@ -11,6 +11,7 @@ import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/PriceOfProduct.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class Products extends StatefulWidget {
@@ -22,13 +23,14 @@ class Products extends StatefulWidget {
 
 class _ProductsState extends State<Products> {
   final quantiteController = TextEditingController();
+  bool loadingFav = false;
+  bool loadingPanier = false;
 
   @override
   void initState() {
     quantiteController.text = '1';
     super.initState();
   }
- 
 
   @override
   void dispose() {
@@ -47,6 +49,8 @@ class _ProductsState extends State<Products> {
         wishlistProvider.getWishlistItems.containsKey(productsModel.id);
     bool? _isInCart = cartProvider.getCartItems.containsKey(productsModel.id);
     final User? user = auth.currentUser;
+    final double fullPrice =
+        productsModel.isOnSolde ? productsModel.solde : productsModel.prix;
 
     return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -83,22 +87,64 @@ class _ProductsState extends State<Products> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          if (user == null) {
+                        onTap: () async {
+                          setState(() {
+                            loadingFav = true;
+                          });
+                          try {
+                            final User? user = auth.currentUser;
+
+                            if (user == null) {
+                              AlertMessage.messageError(
+                                  subTitle:
+                                      'Aucun utilisateur trouvé, veuillez d\'abord vous connecter',
+                                  context: context);
+                              return;
+                            }
+                            if (_isInWishlist == false &&
+                                _isInWishlist != null) {
+                              await WishlistProvider.addProductToWishlist(
+                                  context: context,
+                                  productId: productsModel.id);
+                              await cartProvider.fetchCart();
+                            } else {
+                              await wishlistProvider.removeItem(
+                                  wishlistId: wishlistProvider
+                                      .getWishlistItems[productsModel.id]!.id,
+                                  productId: productsModel.id);
+                            }
+                            await wishlistProvider.fetchWishlist();
+                            setState(() {
+                              loadingFav = false;
+                            });
+                          } catch (error) {
                             AlertMessage.messageError(
-                                subTitle: 'Veuillez s\'authentifier!',
-                                context: context);
-                          } else {
-                            wishlistProvider.addRemoveProductToWishlist(
-                                productId: productsModel.id);
+                                subTitle: error.toString(), context: context);
+                          } finally {
+                            setState(() {
+                              loadingFav = false;
+                            });
                           }
                         },
-                        child: Icon(
-                            _isInWishlist
-                                ? IconlyBold.heart
-                                : IconlyLight.heart,
-                            size: 22,
-                            color: _isInWishlist ? Colors.red : couleur),
+                        child: loadingFav
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                    height: 15,
+                                    width: 15,
+                                    child: CircularProgressIndicator(
+                                      color: couleur,
+                                      strokeWidth: 2,
+                                    )),
+                              )
+                            : Icon(
+                                _isInWishlist && user != null
+                                    ? IconlyBold.heart
+                                    : IconlyLight.heart,
+                                size: 22,
+                                color: _isInWishlist && user != null
+                                    ? Colors.red
+                                    : couleur),
                       ),
                     ],
                   ),
@@ -156,15 +202,59 @@ class _ProductsState extends State<Products> {
                     child: TextButton(
                       onPressed: _isInCart
                           ? null
-                          : () {
-                              cartProvider.addProductsToCart(
-                                  productId: productsModel.id,
-                                  quantity: int.parse(quantiteController.text));
+                          : () async {
+                              final User? user = auth.currentUser;
+                              if (user == null) {
+                                AlertMessage.messageError(
+                                    subTitle: 'Veuillez s\'authentifier!',
+                                    context: context);
+                                return;
+                              }
+                              if (_isInCart) {
+                                await Fluttertoast.showToast(
+                                  msg: "L'article est déjà au panier",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                );
+                                return;
+                              } else {
+                                try {
+                                  setState(() {
+                                    loadingPanier = true;
+                                  });
+                                  await PanierProvider.addProductsToCart(
+                                      context: context,
+                                      productId: productsModel.id,
+                                      quantity: 1);
+                                  await cartProvider.fetchCart();
+                                } catch (error) {
+                                  AlertMessage.messageError(
+                                      subTitle: error.toString(),
+                                      context: context);
+                                } finally {
+                                  setState(() {
+                                    loadingPanier = false;
+                                  });
+                                }
+                              }
                             },
-                      child: Text(
-                          _isInCart ? 'Déjà au Panier' : 'Ajouter au Panier',
-                          style: TextStyle(color: couleur, fontSize: 17),
-                          maxLines: 1),
+                      child: loadingPanier == true
+                          ? Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: SizedBox(
+                                  height: 15,
+                                  width: 15,
+                                  child: CircularProgressIndicator(
+                                    color: couleur,
+                                    strokeWidth: 2,
+                                  )),
+                            )
+                          : Text(
+                              _isInCart
+                                  ? 'Déjà au Panier'
+                                  : 'Ajouter au Panier',
+                              style: TextStyle(color: couleur, fontSize: 17),
+                              maxLines: 1),
                       style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(
                               Theme.of(context).cardColor),

@@ -1,12 +1,15 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Models/Panier-Model.dart';
 import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
+import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +24,7 @@ class CartWidget extends StatefulWidget {
 
 class _CartWidgetState extends State<CartWidget> {
   final quantiteController = TextEditingController();
+  bool loading = false;
   @override
   void initState() {
     quantiteController.text = widget.currentQuantite.toString();
@@ -38,17 +42,20 @@ class _CartWidgetState extends State<CartWidget> {
     Size size = MyTools(context).getScreenSize;
     Color couleur = MyTools(context).color;
     var Quantite;
-    bool quantiteChanged = false;
+    // bool quantiteChanged = false;
 
     final productProvider = Provider.of<ProductsProvider>(context);
     final cartModel = Provider.of<PanierModel>(context);
     final cartProvider = Provider.of<PanierProvider>(context);
     final getCurrentProduct =
         productProvider.getProductById(cartModel.productId);
+    double usedPrice = getCurrentProduct!.isOnSolde
+        ? getCurrentProduct.solde
+        : getCurrentProduct.prix;
     // final productsModel = Provider.of<ProductModel>(context);
     final wishlistProvider = Provider.of<WishlistProvider>(context);
     bool? _isInWishlist =
-        wishlistProvider.getWishlistItems.containsKey(getCurrentProduct!.id);
+        wishlistProvider.getWishlistItems.containsKey(getCurrentProduct.id);
 
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -153,10 +160,15 @@ class _CartWidgetState extends State<CartWidget> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         InkWell(
-                          onTap: () {
-                            cartProvider.removeItem(getCurrentProduct.id);
+                          onTap: () async {
+                            await cartProvider.removeItem(
+                              cartId: cartModel.id,
+                              productId: cartModel.productId,
+                              quantity: cartModel.quantity,
+                            );
                           },
                           child: const Icon(
                             CupertinoIcons.cart_badge_minus,
@@ -168,25 +180,71 @@ class _CartWidgetState extends State<CartWidget> {
                           height: 8,
                         ),
                         GestureDetector(
-                          onTap: () {
-                            wishlistProvider.addRemoveProductToWishlist(
-                                productId: getCurrentProduct.id);
+                          onTap: () async {
+                            setState(() {
+                              loading = true;
+                            });
+                            try {
+                              final User? user = auth.currentUser;
+
+                              if (user == null) {
+                                AlertMessage.messageError(
+                                    subTitle:
+                                        'Aucun utilisateur trouvé, veuillez d\'abord vous connecter',
+                                    context: context);
+                                return;
+                              }
+                              if (_isInWishlist == false &&
+                                  _isInWishlist != null) {
+                                await WishlistProvider.addProductToWishlist(
+                                    context: context,
+                                    productId: getCurrentProduct.id);
+                                await cartProvider.fetchCart();
+                              } else {
+                                await wishlistProvider.removeItem(
+                                    wishlistId: wishlistProvider
+                                        .getWishlistItems[getCurrentProduct.id]!
+                                        .id,
+                                    productId: getCurrentProduct.id);
+                              }
+                              await wishlistProvider.fetchWishlist();
+                              setState(() {
+                                loading = false;
+                              });
+                            } catch (error) {
+                              AlertMessage.messageError(
+                                  subTitle: error.toString(), context: context);
+                            } finally {
+                              setState(() {
+                                loading = false;
+                              });
+                            }
                           },
-                          child: Icon(
-                              _isInWishlist
-                                  ? IconlyBold.heart
-                                  : IconlyLight.heart,
-                              size: 22,
-                              color: _isInWishlist ? Colors.red : couleur),
+                          child: loading
+                              ? Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                      height: 15,
+                                      width: 15,
+                                      child: CircularProgressIndicator(
+                                        color: couleur,
+                                        strokeWidth: 2,
+                                      )),
+                                )
+                              : Icon(
+                                  _isInWishlist
+                                      ? IconlyBold.heart
+                                      : IconlyLight.heart,
+                                  size: 22,
+                                  color: _isInWishlist ? Colors.red : couleur),
                         ),
                         const SizedBox(
                           height: 8,
                         ),
                         Text(
-                          quantiteChanged == true &&
-                                  Quantite.toString().isNotEmpty
-                              ? '${(getCurrentProduct.prix * double.parse(Quantite)).toStringAsFixed(2)} DH'
-                              : '${getCurrentProduct.prix} DH',
+                          quantiteController.text.isNotEmpty
+                              ? '${(usedPrice * double.parse(quantiteController.text)).toStringAsFixed(2)} DH'
+                              : '$usedPrice DH',
                           style: TextStyle(
                             color: couleur,
                             fontSize: 15,

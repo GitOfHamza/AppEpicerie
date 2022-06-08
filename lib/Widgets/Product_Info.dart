@@ -11,6 +11,7 @@ import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/PriceOfProduct.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class ProductInfo extends StatefulWidget {
@@ -21,8 +22,8 @@ class ProductInfo extends StatefulWidget {
 }
 
 class _ProductInfoState extends State<ProductInfo> {
- 
-
+  bool loadingFav = false;
+  bool loadingPanier = false;
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductsProvider>(context);
@@ -35,6 +36,8 @@ class _ProductInfoState extends State<ProductInfo> {
     bool? _isInCart = cartProvider.getCartItems.containsKey(productsModel.id);
     bool? _isInWishlist =
         wishlistProvider.getWishlistItems.containsKey(productsModel.id);
+    final double fullPrice =
+        productsModel.isOnSolde ? productsModel.solde : productsModel.prix;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -81,7 +84,7 @@ class _ProductInfoState extends State<ProductInfo> {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () {
+                                onTap: () async {
                                   final User? user = auth.currentUser;
                                   if (user == null) {
                                     AlertMessage.messageError(
@@ -89,39 +92,117 @@ class _ProductInfoState extends State<ProductInfo> {
                                         context: context);
                                     return;
                                   }
-                                  print(
-                                      'UUUUUUUUUUUUUUUUUUUU bag2: ${user.email}');
-                                  cartProvider.addProductsToCart(
-                                      productId: productsModel.id, quantity: 1);
+                                  if (_isInCart) {
+                                    await Fluttertoast.showToast(
+                                      msg: "L'article est déjà au panier",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                    );
+                                    return;
+                                  } else {
+                                    try {
+                                      setState(() {
+                                        loadingPanier = true;
+                                      });
+                                      await PanierProvider.addProductsToCart(
+                                          context: context,
+                                          productId: productsModel.id,
+                                          quantity: 1);
+                                      await cartProvider.fetchCart();
+                                    } catch (error) {
+                                      AlertMessage.messageError(
+                                          subTitle: error.toString(),
+                                          context: context);
+                                    } finally {
+                                      setState(() {
+                                        loadingPanier = false;
+                                      });
+                                    }
+                                  }
                                 },
-                                child: Icon(
-                                    _isInCart
-                                        ? IconlyBold.bag2
-                                        : IconlyLight.bag2,
-                                    size: 22,
-                                    color: _isInCart ? Colors.green : color),
+                                child: loadingPanier == true
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SizedBox(
+                                            height: 15,
+                                            width: 15,
+                                            child: CircularProgressIndicator(
+                                              color: color,
+                                              strokeWidth: 2,
+                                            )),
+                                      )
+                                    : Icon(
+                                        _isInCart && user != null
+                                            ? IconlyBold.bag2
+                                            : IconlyLight.bag2,
+                                        size: 22,
+                                        color: _isInCart && user != null
+                                            ? Colors.green
+                                            : color),
                               ),
                               const SizedBox(
                                 width: 5,
                               ),
                               GestureDetector(
-                                onTap: () {
-                                  final User? user = auth.currentUser;
-                                  if (user == null) {
+                                onTap: () async {
+                                  setState(() {
+                                    loadingFav = true;
+                                  });
+                                  try {
+                                    final User? user = auth.currentUser;
+
+                                    if (user == null) {
+                                      AlertMessage.messageError(
+                                          subTitle:
+                                              'Aucun utilisateur trouvé, veuillez d\'abord vous connecter',
+                                          context: context);
+                                      return;
+                                    }
+                                    if (_isInWishlist == false &&
+                                        _isInWishlist != null) {
+                                      await WishlistProvider
+                                          .addProductToWishlist(
+                                              context: context,
+                                              productId: productsModel.id);
+                                      await cartProvider.fetchCart();
+                                    } else {
+                                      await wishlistProvider.removeItem(
+                                          wishlistId: wishlistProvider
+                                              .getWishlistItems[
+                                                  productsModel.id]!
+                                              .id,
+                                          productId: productsModel.id);
+                                    }
+                                    await wishlistProvider.fetchWishlist();
+                                  } catch (error) {
                                     AlertMessage.messageError(
-                                        subTitle: 'Veuillez s\'authentifier!',
+                                        subTitle: error.toString(),
                                         context: context);
-                                    return;
+                                  } finally {
+                                    setState(() {
+                                      loadingFav = false;
+                                    });
                                   }
-                                  wishlistProvider.addRemoveProductToWishlist(
-                                      productId: productsModel.id);
                                 },
-                                child: Icon(
-                                    _isInWishlist
-                                        ? IconlyBold.heart
-                                        : IconlyLight.heart,
-                                    size: 22,
-                                    color: _isInWishlist ? Colors.red : color),
+                                child: loadingFav
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SizedBox(
+                                            height: 15,
+                                            width: 15,
+                                            child: CircularProgressIndicator(
+                                              color: color,
+                                              strokeWidth: 2,
+                                            )),
+                                      )
+                                    : Icon(
+                                        _isInWishlist && user != null
+                                            ? IconlyBold.heart
+                                            : IconlyLight.heart,
+                                        size: 22,
+                                        color: _isInWishlist && user != null
+                                            ? Colors.red
+                                            : color),
                               ),
                             ],
                           ),

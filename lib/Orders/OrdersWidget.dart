@@ -1,5 +1,7 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Models/order_model.dart';
+import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:provider/provider.dart';
 
@@ -11,35 +13,42 @@ class OrderWidget extends StatefulWidget {
 }
 
 class _OrderWidgetState extends State<OrderWidget> {
-  // late String orderDateToShow;
+  late String orderDateToShow;
+
+  @override
+  void didChangeDependencies() {
+    final ordersModel = Provider.of<OrderModel>(context);
+    var orderDate = ordersModel.orderDate.toDate();
+    orderDateToShow = '${orderDate.day}/${orderDate.month}/${orderDate.year}';
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
     final Color color = MyTools(context).color;
     Size size = MyTools(context).getScreenSize;
+    final ordersModel = Provider.of<OrderModel>(context);
+    final productProvider = Provider.of<ProductsProvider>(context);
+    final getCurrentProduct =
+        productProvider.getProductById(ordersModel.productId);
     return ListTile(
-      subtitle: const Text('Aricots: 11 DH'),
-      onTap: () {
-        Navigator.pushNamed(context, '/DetailleOfProduct');
-      },
-      leading: FancyShimmerImage(
-        width: size.width * 0.2,
-        imageUrl: 'http://assets.stickpng.com/images/580b57fcd9996e24bc43c12b.png',
-        boxFit: BoxFit.fill,
-      ),
-      title: Text(
-          'Abricots  x12',
-          style: TextStyle(
-            color: color,
-            fontSize: 18
-          ),),
-      trailing: Text(
-          '24/05/2022',
-          style: TextStyle(
-            color: color,
-            fontSize: 18
-          ),
-    )
-    );
+        subtitle: Text(
+            'Payé: ${double.parse(ordersModel.price).toStringAsFixed(2)} DH'),
+        onTap: () {
+          Navigator.pushNamed(context, '/DetailleOfProduct');
+        },
+        leading: FancyShimmerImage(
+          width: size.width * 0.2,
+          imageUrl: getCurrentProduct!.imageUrl,
+          boxFit: BoxFit.fill,
+        ),
+        title: Text(
+          '${getCurrentProduct.title}  x${ordersModel.quantity}',
+          style: TextStyle(color: color, fontSize: 18),
+        ),
+        trailing: Text(
+          orderDateToShow,
+          style: TextStyle(color: color, fontSize: 18),
+        ));
   }
 }
