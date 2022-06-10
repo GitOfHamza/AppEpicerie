@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Providers/Dark_Theme_Provider.dart';
+import 'package:flutter_application_1/Providers/order_provider.dart';
 import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/Position_GPS.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -41,8 +42,7 @@ class _UserPageState extends State<UserPage> {
           _isLoading = false;
         });
         return;
-      }
-      else {
+      } else {
         String _uid = user!.uid;
         setState(() {
           _isLoading = true;
@@ -212,12 +212,12 @@ class _UserPageState extends State<UserPage> {
                           onClick: () {
                             Navigator.pushNamed(context, '/WishlistPage');
                           }),
-                      _list_infos(
-                          title: 'Historique',
-                          icon: Icons.history_outlined,
-                          onClick: () {
-                            Navigator.pushNamed(context, '/VuPage');
-                          }),
+                      // _list_infos(
+                      //     title: 'Historique',
+                      //     icon: Icons.history_outlined,
+                      //     onClick: () {
+                      //       Navigator.pushNamed(context, '/VuPage');
+                      //     }),
                       _list_infos(
                           title: 'Mot de passe oublié',
                           icon: IconlyLight.unlock,
@@ -249,7 +249,6 @@ class _UserPageState extends State<UserPage> {
                                     title: 'Voullez vous déconnecter?',
                                     subTitle: '',
                                     fonction: () async {
-                                      // user!.reload();
                                       await auth.signOut();
                                       _login = false;
                                       Navigator.pushNamed(context, '/Login');

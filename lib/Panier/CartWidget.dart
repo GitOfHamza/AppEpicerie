@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Consts/firebase_const.dart';
+import 'package:flutter_application_1/Inner_InkWell/DetailleOfProduct.dart';
 import 'package:flutter_application_1/Models/Panier-Model.dart';
 import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
@@ -19,15 +20,19 @@ class CartWidget extends StatefulWidget {
   final int currentQuantite;
 
   @override
-  State<CartWidget> createState() => _CartWidgetState();
+  State<CartWidget> createState() => _CartWidgetState(this.currentQuantite);
 }
 
 class _CartWidgetState extends State<CartWidget> {
+  final int _quantite;
+  _CartWidgetState(this._quantite);
   final quantiteController = TextEditingController();
   bool loading = false;
   @override
   void initState() {
-    quantiteController.text = widget.currentQuantite.toString();
+    setState(() {
+      quantiteController.text = _quantite.toString();
+    });
     super.initState();
   }
 
@@ -41,8 +46,6 @@ class _CartWidgetState extends State<CartWidget> {
   Widget build(BuildContext context) {
     Size size = MyTools(context).getScreenSize;
     Color couleur = MyTools(context).color;
-    var Quantite;
-    // bool quantiteChanged = false;
 
     final productProvider = Provider.of<ProductsProvider>(context);
     final cartModel = Provider.of<PanierModel>(context);
@@ -52,7 +55,7 @@ class _CartWidgetState extends State<CartWidget> {
     double usedPrice = getCurrentProduct!.isOnSolde
         ? getCurrentProduct.solde
         : getCurrentProduct.prix;
-    // final productsModel = Provider.of<ProductModel>(context);
+
     final wishlistProvider = Provider.of<WishlistProvider>(context);
     bool? _isInWishlist =
         wishlistProvider.getWishlistItems.containsKey(getCurrentProduct.id);
@@ -61,8 +64,19 @@ class _CartWidgetState extends State<CartWidget> {
       padding: const EdgeInsets.all(10.0),
       child: GestureDetector(
         onTap: () {
-          // Navigator.pushNamed(context, '/DetailleOfProduct',
-          //     arguments: cartModel.productId);
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  DetailleOfProduct(productId: cartModel.productId),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                animation =
+                    CurvedAnimation(parent: animation, curve: Curves.ease);
+                return FadeTransition(opacity: animation, child: child);
+              },
+            ),
+          );
         },
         child: Row(
           children: [

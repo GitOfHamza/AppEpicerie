@@ -25,9 +25,9 @@ class CartPage extends StatelessWidget {
     final cartProvider = Provider.of<PanierProvider>(context);
     final cartItemsList =
         cartProvider.getCartItems.values.toList().reversed.toList();
+
     final productProvider = Provider.of<ProductsProvider>(context);
     final ordersProvider = Provider.of<OrdersProvider>(context);
-    // final ordersProvider = Provider.of<OrdersProvider>(ctx);
     double total = 0.0;
     cartProvider.getCartItems.forEach((key, value) {
       final getCurrentProduct = productProvider.getProductById(value.productId);

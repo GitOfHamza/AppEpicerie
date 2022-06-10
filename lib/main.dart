@@ -22,12 +22,16 @@ import 'package:flutter_application_1/Screens/HomeScreen.dart';
 import 'package:flutter_application_1/Services/fetch_Screen.dart';
 import 'package:flutter_application_1/Vu/VuPage.dart';
 import 'package:flutter_application_1/Wishlist/WishlistPage.dart';
+// import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
+// import 'package:http/http.dart' as http;
 
 /** Welcome to Main File  */
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Stripe.publishableKey = "pk_test_51L8kNZFMadAtuQRrBQIVcW8DXbImFcWVMUxEJYMM3QERNJx6STlasDk4m7xMtz71lAf4p826s9JWnoSUKxl00kfq00MiOGIOcf";
+  // Stripe.instance.applySettings();
   return runApp(MyApp());
 }
 
@@ -106,9 +110,7 @@ class _MyAppState extends State<MyApp> {
                   RouteGenarator.generateRoute(settings),
               debugShowCheckedModeBanner: false,
               theme: Styles.themeData(themeProvider.getDarkTheme, context),
-              home:
-                  //  user == null ? const LoginPage() :
-                  const FetchScreen(),
+              home: const FetchScreen(),
             ),
           ),
         );
@@ -130,9 +132,9 @@ class RouteGenarator {
         return MaterialPageRoute(builder: (context) => const ShowAll());
       case '/All_Products':
         return MaterialPageRoute(builder: (context) => const BrowseAll());
-      case '/DetailleOfProduct':
-        return MaterialPageRoute(
-            builder: (context) => const DetailleOfProduct());
+      // case '/DetailleOfProduct':
+      //   return MaterialPageRoute(
+      //       builder: (context) => const DetailleOfProduct());
       case 'ProductByCategory':
         return MaterialPageRoute(
             builder: (context) => const ProductByCategory());
@@ -140,8 +142,8 @@ class RouteGenarator {
         return MaterialPageRoute(builder: (context) => const WishlistPage());
       case '/OrdersPage':
         return MaterialPageRoute(builder: (context) => const OrdersPage());
-      case '/VuPage':
-        return MaterialPageRoute(builder: (context) => const VuPage());
+      // case '/VuPage':
+      //   return MaterialPageRoute(builder: (context) => const VuPage());
       case '/Login':
         return MaterialPageRoute(builder: (context) => const LoginPage());
       case '/Register':

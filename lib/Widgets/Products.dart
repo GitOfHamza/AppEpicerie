@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/Consts/firebase_const.dart';
+import 'package:flutter_application_1/Inner_InkWell/DetailleOfProduct.dart';
 import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Providers/Panier-Provider.dart';
@@ -60,8 +61,19 @@ class _ProductsState extends State<Products> {
           child: InkWell(
               borderRadius: BorderRadius.circular(18),
               onTap: () {
-                // Navigator.pushNamed(context, '/DetailleOfProduct',
-                //     arguments: productsModel.id);
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        DetailleOfProduct(productId: productsModel.id),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      animation = CurvedAnimation(
+                          parent: animation, curve: Curves.ease);
+                      return FadeTransition(opacity: animation, child: child);
+                    },
+                  ),
+                );
               },
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
@@ -181,7 +193,7 @@ class _ProductsState extends State<Products> {
                                   enabled: true,
                                   onChanged: (valeur) {
                                     setState(() {
-                                      quantiteController.text;
+                                      quantiteController.text = valeur;
                                     });
                                   },
                                   inputFormatters: [
@@ -206,7 +218,8 @@ class _ProductsState extends State<Products> {
                               final User? user = auth.currentUser;
                               if (user == null) {
                                 AlertMessage.messageError(
-                                    subTitle: 'Veuillez s\'authentifier!',
+                                    subTitle:
+                                        'Aucun utilisateur trouvé, veuillez d\'abord vous connecter',
                                     context: context);
                                 return;
                               }

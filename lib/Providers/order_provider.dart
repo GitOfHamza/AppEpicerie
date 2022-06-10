@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Models/order_model.dart';
 
 class OrdersProvider with ChangeNotifier {
-  static List<OrderModel> _orders = [];
+  static final List<OrderModel> _orders = [];
   List<OrderModel> get getOrders {
     return _orders;
   }
@@ -13,7 +14,7 @@ class OrdersProvider with ChangeNotifier {
         .collection('ligneCommandes')
         .get()
         .then((QuerySnapshot ordersSnapshot) {
-      _orders = [];
+      clearOrders();
       ordersSnapshot.docs.forEach((element) {
         _orders.insert(
           0,
@@ -30,6 +31,11 @@ class OrdersProvider with ChangeNotifier {
         );
       });
     });
+    notifyListeners();
+  }
+
+  void clearOrders() {
+    _orders.clear();
     notifyListeners();
   }
 }

@@ -46,20 +46,21 @@ class PanierProvider with ChangeNotifier {
   final userCollection = FirebaseFirestore.instance.collection('clients');
   Future<void> fetchCart() async {
     final User? user = auth.currentUser;
-    final DocumentSnapshot userDoc = await userCollection.doc(user!.uid).get();
+    final DocumentSnapshot? userDoc = await userCollection.doc(user!.uid).get();
     if (userDoc == null) {
       return;
+    } else {
+      for (int i = 0; i < userDoc.get('panier').length; i++) {
+        _cartItems.putIfAbsent(
+            userDoc.get('panier')[i]['idProduit'],
+            () => PanierModel(
+                  id: userDoc.get('panier')[i]['idPanier'],
+                  productId: userDoc.get('panier')[i]['idProduit'],
+                  quantity: userDoc.get('panier')[i]['quantite'],
+                ));
+      }
     }
-    final leng = userDoc.get('panier').length;
-    for (int i = 0; i < leng; i++) {
-      _cartItems.putIfAbsent(
-          userDoc.get('panier')[i]['idProduit'],
-          () => PanierModel(
-                id: userDoc.get('panier')[i]['idPanier'],
-                productId: userDoc.get('panier')[i]['idProduit'],
-                quantity: userDoc.get('panier')[i]['quantite'],
-              ));
-    }
+    
     notifyListeners();
   }
 

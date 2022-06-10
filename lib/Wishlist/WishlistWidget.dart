@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Consts/firebase_const.dart';
+import 'package:flutter_application_1/Inner_InkWell/DetailleOfProduct.dart';
 import 'package:flutter_application_1/Models/Wishlist_Model.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Providers/Panier-Provider.dart';
@@ -45,7 +46,19 @@ class _WishlistWidgetState extends State<WishlistWidget> {
       padding: const EdgeInsets.all(6.0),
       child: GestureDetector(
           onTap: () {
-            // Navigator.pushNamed(context, '/DetailleOfProduct');
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    DetailleOfProduct(productId: getCurrentProduct.id),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  animation =
+                      CurvedAnimation(parent: animation, curve: Curves.ease);
+                  return FadeTransition(opacity: animation, child: child);
+                },
+              ),
+            );
           },
           child: Container(
               height: size.height * 0.2,
@@ -82,7 +95,7 @@ class _WishlistWidgetState extends State<WishlistWidget> {
                                       if (user == null) {
                                         AlertMessage.messageError(
                                             subTitle:
-                                                'Veuillez s\'authentifier!',
+                                                'Aucun utilisateur trouvé, veuillez d\'abord vous connecter',
                                             context: context);
                                         return;
                                       }
@@ -171,9 +184,6 @@ class _WishlistWidgetState extends State<WishlistWidget> {
                                             productId: getCurrentProduct.id);
                                       }
                                       await wishlistProvider.fetchWishlist();
-                                      setState(() {
-                                        loadingFav = false;
-                                      });
                                     } catch (error) {
                                       AlertMessage.messageError(
                                           subTitle: error.toString(),

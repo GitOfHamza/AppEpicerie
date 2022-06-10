@@ -15,6 +15,8 @@ class PriceNameOfProduct extends StatelessWidget {
     this.quantite = '1',
   }) : super(key: key);
 
+
+
   @override
   Widget build(BuildContext context) {
     Color couleur = MyTools(context).color;

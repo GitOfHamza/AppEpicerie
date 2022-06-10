@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,25 @@ class GoogleButton extends StatelessWidget {
                 idToken: googleAuth.idToken,
                 accessToken: googleAuth.accessToken),
           );
-          Navigator.of(context).pushReplacementNamed('/');
+          if (authResult.additionalUserInfo!.isNewUser) {
+            await FirebaseFirestore.instance
+                .collection('clients')
+                .doc(authResult.user!.uid)
+                .set({
+              'id': authResult.user!.uid,
+              'name': authResult.user!.displayName,
+              'email': authResult.user!.email,
+              // 'password': CryptagePassword().cryptPassword(_passTextController),
+              'shipping-address': '',
+              'favorites': [],
+              'panier': [],
+              'dateInscription': Timestamp.now(),
+            });
+          }
+          print(
+              "'id': ${authResult.user!.uid} ++ 'name': ${authResult.user!.displayName} ++ 'email': ${authResult.user!.email}");
+
+          Navigator.of(context).pushReplacementNamed('../');
         } on FirebaseException catch (erreur) {
           AlertMessage.messageError(subTitle: '$erreur', context: context);
         } catch (erreur) {

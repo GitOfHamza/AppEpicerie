@@ -1,23 +1,36 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/Consts/firebase_const.dart';
 import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
+import 'package:flutter_application_1/Providers/Panier-Provider.dart';
+import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
+import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/BackLastPage.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 class DetailleOfProduct extends StatefulWidget {
-  const DetailleOfProduct({Key? key}) : super(key: key);
+  final String productId;
+  const DetailleOfProduct({Key? key, required this.productId})
+      : super(key: key);
 
   @override
-  State<DetailleOfProduct> createState() => _DetailleOfProductState();
+  State<DetailleOfProduct> createState() =>
+      _DetailleOfProductState(this.productId);
 }
 
 class _DetailleOfProductState extends State<DetailleOfProduct> {
   final quantiteController = TextEditingController(text: '1');
+  final String _productId;
+  bool loadingPanier = false;
+  bool loadingFav = false;
+  _DetailleOfProductState(this._productId);
 
   @override
   void dispose() {
@@ -29,15 +42,19 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
   Widget build(BuildContext context) {
     Color couleur = MyTools(context).color;
     Size size = MyTools(context).getScreenSize;
-    // final productProvider = Provider.of<ProductsProvider>(context);
-    // final idProduit = ModalRoute.of(context)!.settings.arguments as String;
-    // final getCurrentProduct = productProvider.getProductById(idProduit);
+    final wishlistProvider = Provider.of<WishlistProvider>(context);
+    final productProvider = Provider.of<ProductsProvider>(context);
+    final cartProvider = Provider.of<PanierProvider>(context);
+    final getCurrentProduct = productProvider.getProductById(_productId);
 
-    // double usedPrice = getCurrProduct.isOnSale
-    //     ? getCurrProduct.salePrice
-    //     : getCurrProduct.price;
-    // double totalPrice = usedPrice * int.parse(_quantityTextController.text);
-    // bool? _isInCart = cartProvider.getCartItems.containsKey(getCurrProduct.id);
+    double usedPrice = getCurrentProduct!.isOnSolde
+        ? getCurrentProduct.solde
+        : getCurrentProduct.prix;
+    double totalPrice = usedPrice * int.parse(quantiteController.text);
+    bool? _isInCart =
+        cartProvider.getCartItems.containsKey(getCurrentProduct.id);
+    bool? _isInWishlist =
+        wishlistProvider.getWishlistItems.containsKey(getCurrentProduct.id);
     return Scaffold(
       appBar: AppBar(
           leading: const BackLastPage(),
@@ -47,8 +64,7 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
         Flexible(
           flex: 2,
           child: FancyShimmerImage(
-            imageUrl:
-                'http://assets.stickpng.com/images/580b57fcd9996e24bc43c12b.png',
+            imageUrl: getCurrentProduct.imageUrl,
             boxFit: BoxFit.scaleDown,
             width: size.width,
           ),
@@ -73,16 +89,68 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                     children: [
                       Flexible(
                           child: Text(
-                        'Title',
+                        getCurrentProduct.title,
                         style: TextStyle(
                             color: couleur,
                             fontSize: 25,
                             fontWeight: FontWeight.bold),
                       )),
                       GestureDetector(
-                        onTap: () {},
-                        child:
-                            Icon(IconlyLight.heart, size: 25, color: couleur),
+                        onTap: () async {
+                          setState(() {
+                            loadingFav = true;
+                          });
+                          try {
+                            final User? user = auth.currentUser;
+
+                            if (user == null) {
+                              AlertMessage.messageError(
+                                  subTitle:
+                                      'Aucun utilisateur trouvé, veuillez d\'abord vous connecter',
+                                  context: context);
+                              return;
+                            }
+                            if (_isInWishlist == false &&
+                                _isInWishlist != null) {
+                              await WishlistProvider.addProductToWishlist(
+                                  context: context,
+                                  productId: getCurrentProduct.id);
+                              await cartProvider.fetchCart();
+                            } else {
+                              await wishlistProvider.removeItem(
+                                  wishlistId: wishlistProvider
+                                      .getWishlistItems[getCurrentProduct.id]!.id,
+                                  productId: getCurrentProduct.id);
+                            }
+                            await wishlistProvider.fetchWishlist();
+                          } catch (error) {
+                            AlertMessage.messageError(
+                                subTitle: error.toString(), context: context);
+                          } finally {
+                            setState(() {
+                              loadingFav = false;
+                            });
+                          }
+                        },
+                        child: loadingFav
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                    height: 15,
+                                    width: 15,
+                                    child: CircularProgressIndicator(
+                                      color: couleur,
+                                      strokeWidth: 2,
+                                    )),
+                              )
+                            : Icon(
+                                _isInWishlist && user != null
+                                    ? IconlyBold.heart
+                                    : IconlyLight.heart,
+                                size: 22,
+                                color: _isInWishlist && user != null
+                                    ? Colors.red
+                                    : couleur),
                       ),
                     ],
                   ),
@@ -93,9 +161,9 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        '11 DH',
-                        style: TextStyle(
+                      Text(
+                        '$usedPrice DH',
+                        style: const TextStyle(
                             color: Colors.green,
                             fontSize: 22,
                             fontWeight: FontWeight.bold),
@@ -111,28 +179,13 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                         width: 10,
                       ),
                       Visibility(
-                        visible: true,
+                        visible: getCurrentProduct.isOnSolde,
                         child: Text(
-                          '13 Dh',
+                          '${getCurrentProduct.prix} Dh',
                           style: TextStyle(
                               fontSize: 17,
                               color: couleur,
                               decoration: TextDecoration.lineThrough),
-                        ),
-                      ),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                            color: const Color.fromRGBO(63, 200, 101, 1),
-                            borderRadius: BorderRadius.circular(5)),
-                        child: const Text(
-                          'livraison gratuite',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -198,16 +251,41 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                   ],
                 ),
                 const Spacer(),
+                Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).backgroundColor,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: const Text(
+                          'livraison gratuite',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // const SizedBox(
+                //   height: 8,
+                // ),
                 Container(
                   width: double.infinity,
                   padding:
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                   decoration: BoxDecoration(
                     color: Theme.of(context).dividerColor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -230,7 +308,7 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                               child: Row(
                                 children: [
                                   Text(
-                                    '11 DH/',
+                                    '$totalPrice DH/',
                                     style: TextStyle(
                                         color: couleur,
                                         fontSize: 20,
@@ -254,20 +332,67 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                       ),
                       Flexible(
                         child: Material(
-                          color: Colors.green,
+                          color: _isInCart ? Colors.blue.shade700 :Colors.green,
                           borderRadius: BorderRadius.circular(3),
                           child: InkWell(
-                              onTap: () {},
+                              onTap: () async {
+                                final User? user = auth.currentUser;
+                                if (user == null) {
+                                  AlertMessage.messageError(
+                                      subTitle:
+                                          'Aucun utilisateur trouvé, veuillez d\'abord vous connecter',
+                                      context: context);
+                                  return;
+                                }
+                                if (_isInCart) {
+                                  await Fluttertoast.showToast(
+                                    msg: "L'article est déjà au panier",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                  );
+                                  return;
+                                } else {
+                                  try {
+                                    setState(() {
+                                      loadingPanier = true;
+                                    });
+                                    await PanierProvider.addProductsToCart(
+                                        context: context,
+                                        productId: getCurrentProduct.id,
+                                        quantity: 1);
+                                    await cartProvider.fetchCart();
+                                  } catch (error) {
+                                    AlertMessage.messageError(
+                                        subTitle: error.toString(),
+                                        context: context);
+                                  } finally {
+                                    setState(() {
+                                      loadingPanier = false;
+                                    });
+                                  }
+                                }
+                              },
                               borderRadius: BorderRadius.circular(5),
-                              child: const Padding(
-                                padding: EdgeInsets.all(10.0),
-                                child: Text(
-                                  'Ajouter au panier',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                  ),
-                                ),
+                              child:  Padding(
+                                padding:const EdgeInsets.all(10.0),
+                                child: loadingPanier == true
+                                    ? const Padding(
+                                        padding:  EdgeInsets.all(8.0),
+                                        child: SizedBox(
+                                            height: 15,
+                                            width: 15,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            )),
+                                      )
+                                    : Text(
+                                        _isInCart
+                                            ? 'Déjà au Panier'
+                                            : 'Ajouter au Panier',
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 17),
+                                        maxLines: 1),
                               )),
                         ),
                       ),

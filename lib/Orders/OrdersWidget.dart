@@ -1,5 +1,6 @@
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Inner_InkWell/DetailleOfProduct.dart';
 import 'package:flutter_application_1/Models/order_model.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Services/tools.dart';
@@ -35,7 +36,19 @@ class _OrderWidgetState extends State<OrderWidget> {
         subtitle: Text(
             'Payé: ${double.parse(ordersModel.price).toStringAsFixed(2)} DH'),
         onTap: () {
-          Navigator.pushNamed(context, '/DetailleOfProduct');
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  DetailleOfProduct(productId: getCurrentProduct!.id),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                animation =
+                    CurvedAnimation(parent: animation, curve: Curves.ease);
+                return FadeTransition(opacity: animation, child: child);
+              },
+            ),
+          );
         },
         leading: FancyShimmerImage(
           width: size.width * 0.2,

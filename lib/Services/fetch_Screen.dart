@@ -27,12 +27,14 @@ class _FetchScreenState extends State<FetchScreen> {
       final cartProvider = Provider.of<PanierProvider>(context, listen: false);
       final favoriteProvider =
           Provider.of<WishlistProvider>(context, listen: false);
-      final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+      final ordersProvider =
+          Provider.of<OrdersProvider>(context, listen: false);
       final User? user = auth.currentUser;
       if (user == null) {
         await productsProvider.fetchProducts();
         cartProvider.clearCart();
         favoriteProvider.clearWishlist();
+        ordersProvider.clearOrders();
       } else {
         await productsProvider.fetchProducts();
         await cartProvider.fetchCart();
@@ -67,14 +69,14 @@ class _FetchScreenState extends State<FetchScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircularProgressIndicator(
-                color: Colors.yellow.shade600,
+                color: Colors.grey.shade400,
               ),
               const SizedBox(
                 height: 13,
               ),
               Text(
                 'Connexion...',
-                style: TextStyle(color: Colors.yellow.shade600, fontSize: 17),
+                style: TextStyle(color: Colors.grey.shade400, fontSize: 17),
               )
             ],
           ))
