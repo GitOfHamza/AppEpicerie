@@ -17,7 +17,8 @@ import 'package:provider/provider.dart';
 
 class DetailleOfProduct extends StatefulWidget {
   final String productId;
-  const DetailleOfProduct({Key? key, required this.productId})
+  String? currentQuantity;
+  DetailleOfProduct({Key? key, required this.productId, this.currentQuantity})
       : super(key: key);
 
   @override
@@ -31,6 +32,12 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
   bool loadingPanier = false;
   bool loadingFav = false;
   _DetailleOfProductState(this._productId);
+
+  @override
+  void initState() {
+    quantiteController.text = widget.currentQuantity ?? '1';
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -62,12 +69,14 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
           backgroundColor: Theme.of(context).scaffoldBackgroundColor),
       body: Column(children: [
         Flexible(
-          flex: 2,
           child: FancyShimmerImage(
             imageUrl: getCurrentProduct.imageUrl,
             boxFit: BoxFit.scaleDown,
             width: size.width,
           ),
+        ),
+        const SizedBox(
+          height: 10,
         ),
         Flexible(
           flex: 3,
@@ -119,7 +128,8 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                             } else {
                               await wishlistProvider.removeItem(
                                   wishlistId: wishlistProvider
-                                      .getWishlistItems[getCurrentProduct.id]!.id,
+                                      .getWishlistItems[getCurrentProduct.id]!
+                                      .id,
                                   productId: getCurrentProduct.id);
                             }
                             await wishlistProvider.fetchWishlist();
@@ -194,61 +204,71 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                 const SizedBox(
                   height: 30,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    quantityControl(
-                      fct: () {
-                        if (quantiteController.text == '1') {
-                          return;
-                        } else {
+                Visibility(
+                  visible: !_isInCart,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      quantityControl(
+                        fct: () {
+                          if (quantiteController.text == '1') {
+                            return;
+                          } else {
+                            setState(() {
+                              quantiteController.text =
+                                  (int.parse(quantiteController.text) - 1)
+                                      .toString();
+                            });
+                          }
+                        },
+                        icon: CupertinoIcons.minus,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Flexible(
+                        flex: 1,
+                        child: TextField(
+                          controller: quantiteController,
+                          keyboardType: TextInputType.number,
+                          maxLines: 1,
+                          decoration: const InputDecoration(
+                            border: UnderlineInputBorder(),
+                          ),
+                          textAlign: TextAlign.center,
+                          cursorColor: Colors.green,
+                          enabled: true,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+                          ],
+                          onChanged: (value) {
+                            if (value.isEmpty) {
+                              quantiteController.text = '1';
+                            } else {
+                              setState(() {
+                                quantiteController.text;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      quantityControl(
+                        fct: () {
                           setState(() {
                             quantiteController.text =
-                                (int.parse(quantiteController.text) - 1)
+                                (int.parse(quantiteController.text) + 1)
                                     .toString();
                           });
-                        }
-                      },
-                      icon: CupertinoIcons.minus,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: TextField(
-                        controller: quantiteController,
-                        key: const ValueKey('quantity'),
-                        keyboardType: TextInputType.number,
-                        maxLines: 1,
-                        decoration: const InputDecoration(
-                          border: UnderlineInputBorder(),
-                        ),
-                        textAlign: TextAlign.center,
-                        cursorColor: Colors.green,
-                        enabled: true,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp('[0-9]')),
-                        ],
-                        onChanged: (value) {},
+                        },
+                        icon: CupertinoIcons.plus,
+                        color: Colors.green,
                       ),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    quantityControl(
-                      fct: () {
-                        setState(() {
-                          quantiteController.text =
-                              (int.parse(quantiteController.text) + 1)
-                                  .toString();
-                        });
-                      },
-                      icon: CupertinoIcons.plus,
-                      color: Colors.green,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const Spacer(),
                 Column(
@@ -332,7 +352,8 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                       ),
                       Flexible(
                         child: Material(
-                          color: _isInCart ? Colors.blue.shade700 :Colors.green,
+                          color:
+                              _isInCart ? Colors.blue.shade700 : Colors.green,
                           borderRadius: BorderRadius.circular(3),
                           child: InkWell(
                               onTap: () async {
@@ -359,7 +380,8 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                                     await PanierProvider.addProductsToCart(
                                         context: context,
                                         productId: getCurrentProduct.id,
-                                        quantity: 1);
+                                        quantity:
+                                            int.parse(quantiteController.text));
                                     await cartProvider.fetchCart();
                                   } catch (error) {
                                     AlertMessage.messageError(
@@ -373,11 +395,11 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                                 }
                               },
                               borderRadius: BorderRadius.circular(5),
-                              child:  Padding(
-                                padding:const EdgeInsets.all(10.0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
                                 child: loadingPanier == true
                                     ? const Padding(
-                                        padding:  EdgeInsets.all(8.0),
+                                        padding: EdgeInsets.all(8.0),
                                         child: SizedBox(
                                             height: 15,
                                             width: 15,

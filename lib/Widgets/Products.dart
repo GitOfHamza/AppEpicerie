@@ -238,7 +238,8 @@ class _ProductsState extends State<Products> {
                                   await PanierProvider.addProductsToCart(
                                       context: context,
                                       productId: productsModel.id,
-                                      quantity: 1);
+                                      quantity:
+                                          int.parse(quantiteController.text));
                                   await cartProvider.fetchCart();
                                 } catch (error) {
                                   AlertMessage.messageError(

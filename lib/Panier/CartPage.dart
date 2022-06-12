@@ -15,8 +15,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
+
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  static int newId = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +72,6 @@ class CartPage extends StatelessWidget {
                             if (Navigator.canPop(context)) {
                               Navigator.pop(context);
                             }
-                            // Navigator.of(context).pop(true);
                           },
                           context: context);
                     },
@@ -89,7 +95,8 @@ class CartPage extends StatelessWidget {
                             child: InkWell(
                               onTap: () async {
                                 User? user = auth.currentUser;
-                                final orderId = const Uuid().v4();
+                                final idCommande = const Uuid().v4();
+                                // final idLigneCommande = const Uuid().v4();
                                 final productProvider =
                                     Provider.of<ProductsProvider>(context,
                                         listen: false);
@@ -101,26 +108,36 @@ class CartPage extends StatelessWidget {
                                     value.productId,
                                   );
                                   try {
+                                    setState(() {
+                                      value.quantity;
+                                    });
+
+                                    await FirebaseFirestore.instance
+                                        .collection('Commandes')
+                                        .doc(idCommande)
+                                        .set({
+                                      'idCommande': idCommande,
+                                      'idClient': user!.uid,
+                                      'prixTotal': total,
+                                      'dateCommande': Timestamp.now(),
+                                    });
                                     await FirebaseFirestore.instance
                                         .collection('ligneCommandes')
-                                        .doc(orderId)
+                                        .doc(getCurrentProduct!.id)
                                         .set({
-                                      'idLigneCommande': orderId,
-                                      'idClient': user!.uid,
+                                      'idLigneCommande': const Uuid().v4(),
+                                      'idCommande': idCommande,
                                       'idProduit': value.productId,
-                                      'prix': (getCurrentProduct!.isOnSolde
+                                      'prix': (getCurrentProduct.isOnSolde
                                               ? getCurrentProduct.solde
                                               : getCurrentProduct.prix) *
                                           value.quantity,
-                                      'prixTotal': total,
                                       'quantite': value.quantity,
                                       'imageUrl': getCurrentProduct.imageUrl,
-                                      'userName': user.displayName,
-                                      'dateCommande': Timestamp.now(),
                                     });
                                     await cartProvider.clearOnLigneCart();
                                     cartProvider.clearCart();
-                                    ordersProvider.fetchOrders();
+                                    await ordersProvider.fetchOrders();
                                     await Fluttertoast.showToast(
                                       msg: "Votre commande a été enregistrée",
                                       toastLength: Toast.LENGTH_SHORT,

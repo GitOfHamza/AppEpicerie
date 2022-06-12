@@ -26,10 +26,8 @@ class PanierProvider with ChangeNotifier {
         'panier': FieldValue.arrayUnion([
           {
             'idPanier': cartId,
-            // 'idClient': _uid,
             'idProduit': productId,
             'quantite': quantity,
-            // 'dateCommande': Timestamp.now(),
           }
         ])
       });

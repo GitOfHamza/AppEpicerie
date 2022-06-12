@@ -16,7 +16,10 @@ import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:provider/provider.dart';
 
 class CartWidget extends StatefulWidget {
-  const CartWidget({Key? key, required this.currentQuantite}) : super(key: key);
+  CartWidget({
+    Key? key,
+    required this.currentQuantite,
+  }) : super(key: key);
   final int currentQuantite;
 
   @override
@@ -30,9 +33,7 @@ class _CartWidgetState extends State<CartWidget> {
   bool loading = false;
   @override
   void initState() {
-    setState(() {
-      quantiteController.text = _quantite.toString();
-    });
+    quantiteController.text = _quantite.toString();
     super.initState();
   }
 
@@ -68,7 +69,10 @@ class _CartWidgetState extends State<CartWidget> {
             context,
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  DetailleOfProduct(productId: cartModel.productId),
+                  DetailleOfProduct(
+                productId: cartModel.productId,
+                currentQuantity: quantiteController.text,
+              ),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 animation =
@@ -132,27 +136,32 @@ class _CartWidgetState extends State<CartWidget> {
                                 icon: CupertinoIcons.minus,
                                 couleur: Colors.red),
                             Flexible(
-                                flex: 1,
-                                child: TextFormField(
-                                  controller: quantiteController,
-                                  key: const ValueKey(10),
-                                  style:
-                                      TextStyle(color: couleur, fontSize: 17),
-                                  keyboardType: TextInputType.number,
-                                  maxLines: 1,
-                                  enabled: true,
-                                  onChanged: (valeur) {
-                                    setState(() {
-                                      if (valeur.isEmpty) {
-                                        quantiteController.text = '1';
-                                      }
-                                    });
-                                  },
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(
-                                        RegExp('[0-9.]'))
-                                  ],
-                                )),
+                              flex: 1,
+                              child: TextField(
+                                controller: quantiteController,
+                                keyboardType: TextInputType.number,
+                                maxLines: 1,
+                                decoration: const InputDecoration(
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(),
+                                  ),
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9]'),
+                                  ),
+                                ],
+                                onChanged: (valeur) {
+                                  setState(() {
+                                    if (valeur.isEmpty) {
+                                      quantiteController.text = '1';
+                                    } else {
+                                      return;
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
                             _quantiteController(
                                 onClick: () {
                                   cartProvider.incrementationDeLaQuantite(

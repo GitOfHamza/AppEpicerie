@@ -4,13 +4,13 @@ import 'package:flutter_application_1/Models/Product.dart';
 import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/BackLastPage.dart';
+import 'package:flutter_application_1/Widgets/Products.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:provider/provider.dart';
 
-
 class ProductByCategory extends StatefulWidget {
-  // static const routeName = "/ProductByCategory";
-  const ProductByCategory({Key? key}) : super(key: key);
+  final String? arg;
+  const ProductByCategory({Key? key, this.arg}) : super(key: key);
 
   @override
   State<ProductByCategory> createState() => _ProductByCategoryState();
@@ -32,8 +32,8 @@ class _ProductByCategoryState extends State<ProductByCategory> {
     final Color color = MyTools(context).color;
     Size size = MyTools(context).getScreenSize;
     final productsProvider = Provider.of<ProductsProvider>(context);
-    final catName = ModalRoute.of(context)!.settings.arguments as String;
-    List<ProductModel> productByCat = productsProvider.findByCategory(catName);
+    List<ProductModel> productByCat =
+        productsProvider.findByCategory(widget.arg!);
     return Scaffold(
       appBar: AppBar(
         leading: const BackLastPage(),
@@ -41,20 +41,17 @@ class _ProductByCategoryState extends State<ProductByCategory> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         centerTitle: true,
         title: Text(
-          catName,
+          widget.arg!,
           style: TextStyle(
-            color: color,
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold
-          ),
+              color: color, fontSize: 20.0, fontWeight: FontWeight.bold),
         ),
       ),
       body: productByCat.isEmpty
           ? const Center(
-            child: Text(
-                 'No products belong to this category',
+              child: Text(
+                'No products belong to this category',
               ),
-          )
+            )
           : SingleChildScrollView(
               child: Column(children: [
                 Padding(
@@ -102,15 +99,14 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                 _searchTextController!.text.isNotEmpty &&
                         listProdcutSearch.isEmpty
                     ? const Center(
-                      child: Text(
-                           'No products found, please try another keyword'),
-                    )
+                        child: Text(
+                            'No products found, please try another keyword'),
+                      )
                     : GridView.count(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         crossAxisCount: 2,
                         padding: EdgeInsets.zero,
-                        // crossAxisSpacing: 10,
                         childAspectRatio: size.width / (size.height * 0.61),
                         children: List.generate(
                             _searchTextController!.text.isNotEmpty
@@ -120,7 +116,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                             value: _searchTextController!.text.isNotEmpty
                                 ? listProdcutSearch[index]
                                 : productByCat[index],
-                            child: const BrowseAll(),
+                            child: const Products(),
                           );
                         }),
                       ),

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Inner_InkWell/Search_From_Cat%C3%A9gorie.dart';
 import 'package:flutter_application_1/Providers/Dark_Theme_Provider.dart';
 import 'package:provider/provider.dart';
 
@@ -23,8 +24,13 @@ class CategoriesWidget extends StatelessWidget {
     final Color color = themeState.getDarkTheme ? Colors.white : Colors.black;
     return InkWell(
       onTap: () {
-        // Navigator.pushNamed(context, 'ProductByCategory', arguments: catText);
-        // RouteSettings(name: 'ProductByCategory', arguments: catText);
+        Navigator.push(
+            context,
+            PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    ProductByCategory(
+                      arg: catText,
+                    )));
       },
       child: Container(
         height: _screenWidth * 0.65,
