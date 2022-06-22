@@ -9,6 +9,8 @@ import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Screens/Categorie.dart';
 import 'package:flutter_application_1/Screens/HomeScreen.dart';
 import 'package:flutter_application_1/Screens/User.dart';
+import 'package:flutter_application_1/Services/local_notication_manager.dart';
+import 'package:flutter_application_1/Services/push_notication_manager.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +35,9 @@ class _BottomBarState extends State<BottomBar> {
       selectIndex = index;
     });
   }
+
+ 
+  
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +64,7 @@ class _BottomBarState extends State<BottomBar> {
         showSelectedLabels: false,
         showUnselectedLabels: false,
         selectedItemColor: _isDark ? Colors.white30 : Colors.black26,
-        unselectedItemColor: _isDark ? Colors.cyan : Colors.black87,
+        unselectedItemColor: _isDark ? Colors.white : Colors.black87,
         currentIndex: selectIndex,
         onTap: pageIndex,
         items: <BottomNavigationBarItem>[

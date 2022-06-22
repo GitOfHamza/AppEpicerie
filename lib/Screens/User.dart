@@ -225,7 +225,7 @@ class _UserPageState extends State<UserPage> {
                             Navigator.pushNamed(context, '/ForgetPassword');
                           }),
                       SwitchListTile(
-                        activeColor: Colors.cyan,
+                        activeColor: Colors.white,
                         title: const Text('Théme',
                             style: TextStyle(
                                 fontSize: 17, fontWeight: FontWeight.bold)),

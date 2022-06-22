@@ -100,7 +100,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                         listProdcutSearch.isEmpty
                     ? const Center(
                         child: Text(
-                            'No products found, please try another keyword'),
+                            'Aucun produit trouvé, veuillez essayer un autre mot-clé'),
                       )
                     : GridView.count(
                         shrinkWrap: true,

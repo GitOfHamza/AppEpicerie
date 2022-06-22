@@ -10,6 +10,7 @@ import 'package:flutter_application_1/Providers/List_Of_Products.dart';
 import 'package:flutter_application_1/Screens/Categorie.dart';
 import 'package:flutter_application_1/Services/Dark_Theme_Preference.dart';
 import 'package:flutter_application_1/Services/fetch_Screen.dart';
+import 'package:flutter_application_1/Services/local_notication_manager.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/Product_Info.dart';
 import 'package:flutter_application_1/Widgets/Products.dart';
@@ -75,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen> {
               TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/All_Soldes');
-                  // _submitFormOnRegister();
                 },
                 child: const Text('Voir tout',
                     style: TextStyle(color: Colors.blue, fontSize: 20),

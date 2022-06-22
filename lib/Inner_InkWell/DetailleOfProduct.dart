@@ -297,9 +297,6 @@ class _DetailleOfProductState extends State<DetailleOfProduct> {
                     ),
                   ],
                 ),
-                // const SizedBox(
-                //   height: 8,
-                // ),
                 Container(
                   width: double.infinity,
                   padding:

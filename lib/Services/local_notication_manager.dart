@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-class NotificationService extends ChangeNotifier {
+class LocalNotificationService extends ChangeNotifier {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
@@ -13,10 +13,10 @@ class NotificationService extends ChangeNotifier {
         FlutterLocalNotificationsPlugin();
 
     AndroidInitializationSettings androidInitializationSettings =
-       const AndroidInitializationSettings("ic_launcher");
+        const AndroidInitializationSettings("app_logo");
 
     IOSInitializationSettings iosInitializationSettings =
-       const IOSInitializationSettings();
+        const IOSInitializationSettings();
 
     final InitializationSettings initializationSettings =
         InitializationSettings(
@@ -30,7 +30,7 @@ class NotificationService extends ChangeNotifier {
   Future instantNofitication() async {
     var android = const AndroidNotificationDetails("id", "channel");
 
-    var ios = const   IOSNotificationDetails();
+    var ios = const IOSNotificationDetails();
 
     var platform = NotificationDetails(android: android, iOS: ios);
 
@@ -42,10 +42,10 @@ class NotificationService extends ChangeNotifier {
   //Image notification
   Future imageNotification() async {
     var bigPicture = const BigPictureStyleInformation(
-        DrawableResourceAndroidBitmap("ic_launcher"),
-        largeIcon: DrawableResourceAndroidBitmap("ic_launcher"),
-        contentTitle: "Demo image notification",
-        summaryText: "This is some text",
+        DrawableResourceAndroidBitmap("app_logo"),
+        largeIcon: DrawableResourceAndroidBitmap("app_logo"),
+        contentTitle: "image Logo Notification",
+        summaryText: "Welcome in NiceShop",
         htmlFormatContent: true,
         htmlFormatContentTitle: true);
 
@@ -55,17 +55,17 @@ class NotificationService extends ChangeNotifier {
     var platform = NotificationDetails(android: android);
 
     await _flutterLocalNotificationsPlugin.show(
-        0, "Demo Image notification", "Tap to do something", platform,
+        0, "image Logo Notification", "Tap to do something", platform,
         payload: "Welcome to demo app");
   }
 
   //Stylish Notification
   Future stylishNotification() async {
-    var android =const AndroidNotificationDetails("id", "channel",
+    var android = const AndroidNotificationDetails("id", "channel",
         color: Colors.deepOrange,
         enableLights: true,
         enableVibration: true,
-        largeIcon: DrawableResourceAndroidBitmap("ic_launcher"),
+        largeIcon: DrawableResourceAndroidBitmap("app_logo"),
         styleInformation: MediaStyleInformation(
             htmlFormatContent: true, htmlFormatTitle: true));
 
@@ -80,17 +80,17 @@ class NotificationService extends ChangeNotifier {
   Future sheduledNotification() async {
     var interval = RepeatInterval.everyMinute;
     var bigPicture = const BigPictureStyleInformation(
-        DrawableResourceAndroidBitmap("ic_launcher"),
-        largeIcon: DrawableResourceAndroidBitmap("ic_launcher"),
+        DrawableResourceAndroidBitmap("app_logo"),
+        largeIcon: DrawableResourceAndroidBitmap("app_logo"),
         contentTitle: "Demo image notification",
         summaryText: "This is some text",
         htmlFormatContent: true,
         htmlFormatContentTitle: true);
 
-    var android = AndroidNotificationDetails("id", "channel", 
+    var android = AndroidNotificationDetails("id", "channel",
         styleInformation: bigPicture);
 
-    var platform =  NotificationDetails(android: android);
+    var platform = NotificationDetails(android: android);
 
     await _flutterLocalNotificationsPlugin.periodicallyShow(
         0,

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Authentification/FOrgetPassword.dart';
 import 'package:flutter_application_1/Authentification/Login.dart';
@@ -20,23 +21,27 @@ import 'package:flutter_application_1/Providers/order_provider.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
 import 'package:flutter_application_1/Screens/HomeScreen.dart';
 import 'package:flutter_application_1/Services/fetch_Screen.dart';
-import 'package:flutter_application_1/Vu/VuPage.dart';
+import 'package:flutter_application_1/Services/local_notication_manager.dart';
+import 'package:flutter_application_1/Services/push_notication_manager.dart';
 import 'package:flutter_application_1/Wishlist/WishlistPage.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 // import 'package:http/http.dart' as http;
 
 /** Welcome to Main File  */
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await PushNotificationManager().init();
   // Stripe.publishableKey = "pk_test_51L8kNZFMadAtuQRrBQIVcW8DXbImFcWVMUxEJYMM3QERNJx6STlasDk4m7xMtz71lAf4p826s9JWnoSUKxl00kfq00MiOGIOcf";
   // Stripe.instance.applySettings();
-  return runApp(MyApp());
+  return runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -52,9 +57,12 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    getCurrentTheme();
     super.initState();
+    getCurrentTheme();
+    
   }
+
+
 
   final Future<FirebaseApp> _firebaseInitialisation = Firebase.initializeApp();
 
@@ -102,6 +110,12 @@ class _MyAppState extends State<MyApp> {
             ChangeNotifierProvider(create: (_) {
               return OrdersProvider();
             }),
+            ChangeNotifierProvider(create: (_) {
+              return PushNotificationManager();
+            }),
+            // ChangeNotifierProvider(create: (_) {
+            //   return LocalNotificationService();
+            // }),
           ],
           child: Consumer<DarkThemeProvider>(
             builder: (context, themeProvider, child) => MaterialApp(
@@ -132,9 +146,6 @@ class RouteGenarator {
         return MaterialPageRoute(builder: (context) => const ShowAll());
       case '/All_Products':
         return MaterialPageRoute(builder: (context) => const BrowseAll());
-      // case '/DetailleOfProduct':
-      //   return MaterialPageRoute(
-      //       builder: (context) => const DetailleOfProduct());
       case 'ProductByCategory':
         return MaterialPageRoute(
             builder: (context) => const ProductByCategory());
@@ -142,8 +153,6 @@ class RouteGenarator {
         return MaterialPageRoute(builder: (context) => const WishlistPage());
       case '/OrdersPage':
         return MaterialPageRoute(builder: (context) => const OrdersPage());
-      // case '/VuPage':
-      //   return MaterialPageRoute(builder: (context) => const VuPage());
       case '/Login':
         return MaterialPageRoute(builder: (context) => const LoginPage());
       case '/Register':

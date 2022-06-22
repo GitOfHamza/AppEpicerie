@@ -4,31 +4,31 @@ import 'package:flutter_application_1/Widgets/Categorie_Widget.dart';
 
 class CategoriePage extends StatelessWidget {
   CategoriePage({Key? key}) : super(key: key);
-  
+
   List<Map<String, dynamic>> catInfo = [
     {
-      'imgPath' : 'assets/images/Fruits.jpg',
-      'catText' : 'Fruits',
+      'imgPath': 'assets/images/Fruits.jpg',
+      'catText': 'Fruits',
     },
     {
-      'imgPath' : 'assets/images/Vegetables.jpg',
-      'catText' : 'Vegetables',
+      'imgPath': 'assets/images/Vegetables.jpg',
+      'catText': 'Vegetables',
     },
     {
-      'imgPath' : 'assets/images/Herbs.jpg',
-      'catText' : 'Herbs',
+      'imgPath': 'assets/images/Herbs.jpg',
+      'catText': 'Herbes',
     },
     {
-      'imgPath' : 'assets/images/Nuts.jpg',
-      'catText' : 'Nuts',
+      'imgPath': 'assets/images/Nuts.jpg',
+      'catText': 'Nuts',
     },
     {
-      'imgPath' : 'assets/images/Spices.jpg',
-      'catText' : 'Spices',
+      'imgPath': 'assets/images/Spices.jpg',
+      'catText': 'Spices',
     },
     {
-      'imgPath' : 'assets/images/Grains.jpg',
-      'catText' : 'Grains',
+      'imgPath': 'assets/images/Grains.jpg',
+      'catText': 'Grains',
     },
   ];
 
@@ -47,7 +47,7 @@ class CategoriePage extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: GridView.count(
               crossAxisCount: 2,
-              mainAxisSpacing: 15,  // Espace Horizontale
+              mainAxisSpacing: 15, // Espace Horizontale
               crossAxisSpacing: 12, // Espace Verticale
               childAspectRatio: 245 / 250,
               children: List.generate(6, (index) {

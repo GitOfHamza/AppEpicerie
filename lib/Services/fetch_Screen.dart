@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Consts/ImageAutoScrolle.dart';
 import 'package:flutter_application_1/Consts/firebase_const.dart';
@@ -7,6 +8,8 @@ import 'package:flutter_application_1/Providers/Panier-Provider.dart';
 import 'package:flutter_application_1/Providers/Wishlist_Provider.dart';
 import 'package:flutter_application_1/Providers/order_provider.dart';
 import 'package:flutter_application_1/Screens/Bottom_Bar.dart';
+import 'package:flutter_application_1/main.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:provider/provider.dart';
@@ -46,6 +49,9 @@ class _FetchScreenState extends State<FetchScreen> {
         builder: (ctx) => const BottomBar(),
       ));
     });
+
+    // Notification
+
     super.initState();
   }
 
