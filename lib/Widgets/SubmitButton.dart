@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SubmitButton extends StatelessWidget {
@@ -22,7 +21,6 @@ class SubmitButton extends StatelessWidget {
           ),
           onPressed: () {
             fonction();
-            // _submitFormOnLogin();
           },
           child: Text(
             textButton,

@@ -8,7 +8,6 @@ import 'package:flutter_application_1/Services/Alert.dart';
 import 'package:flutter_application_1/Services/tools.dart';
 import 'package:flutter_application_1/Widgets/BackLastPage.dart';
 import 'package:flutter_application_1/Widgets/SubmitButton.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ForgetPasswordPage extends StatefulWidget {
@@ -29,44 +28,38 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
     super.dispose();
   }
 
-  void _submitFormOfForgetPassword() {
-    final isValid = _keyForm.currentState!.validate();
-    FocusScope.of(context).unfocus();
-  }
-
-  bool _isLoading = false;
-  void _forgetPassFCT() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-      await auth.sendPasswordResetEmail(
-          email: _emailTextController.text.toLowerCase().trim());
-      // AlertMessage.notication(
-      //     contenue: 'Veuillez consultez votre Boite-Email', context: context);
-      Fluttertoast.showToast(
-        msg: "Veuillez consultez votre Boite-Email",
-        toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 2,
-        backgroundColor: Colors.grey.shade600,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-    } on FirebaseException catch (erreur) {
-      setState(() {
-        _isLoading = false;
-      });
-      AlertMessage.messageError(subTitle: '$erreur', context: context);
-    } catch (erreur) {
-      setState(() {
-        _isLoading = false;
-      });
-      AlertMessage.messageError(subTitle: '$erreur', context: context);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+  Future<void> _forgetPassFCT() async {
+    if (_emailTextController.text.isEmpty ||
+        !_emailTextController.text.contains("@") ||
+        !_emailTextController.text.contains(".")) {
+      AlertMessage.messageError(
+          subTitle: 'S\'il vous plaît, mettez une adresse email valide',
+          context: context);
+    } else {
+      if (user != null && _emailTextController.text == user!.email) {
+        AlertMessage.messageError(
+            subTitle: 'Veuillez déconnecter', context: context);
+      } else {
+        try {
+          await auth.sendPasswordResetEmail(
+              email: _emailTextController.text.toLowerCase().trim());
+          print(
+              "email issssssssssssssssssssssss :${_emailTextController.text}");
+          Fluttertoast.showToast(
+            msg: "Veuillez consultez votre Boite-Email",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 2,
+            backgroundColor: Colors.grey.shade600,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        } on FirebaseException catch (erreur) {
+          AlertMessage.messageError(subTitle: '$erreur', context: context);
+        } catch (erreur) {
+          AlertMessage.messageError(subTitle: '$erreur', context: context);
+        } finally {}
+      }
     }
   }
 
@@ -86,8 +79,6 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
             },
             autoplay: true,
             itemCount: ImageAutoScrolle.vipImage.length,
-
-            // control: const SwiperControl(),
           ),
           Container(
             color: Colors.black.withOpacity(0.7),
@@ -116,42 +107,30 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                 const SizedBox(
                   height: 30,
                 ),
-                TextFormField(
-                  textInputAction: TextInputAction.done,
-                  onEditingComplete: () {
-                    _submitFormOfForgetPassword();
-                  },
-                  validator: (valeur) {},
-                  style: const TextStyle(color: Colors.white, fontSize: 21),
-                  decoration: const InputDecoration(
-                    hintText: 'Email adresse',
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 21),
-                    enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    disabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                  ),
+                TextField(
                   controller: _emailTextController,
-                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    hintText: 'Email address',
+                    hintStyle: TextStyle(color: Colors.white),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    errorBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                    ),
+                  ),
                 ),
                 const SizedBox(
                   height: 15,
                 ),
                 SubmitButton(
                   textButton: 'Réinitialiser maintenant',
-                  fonction: () {
-                    if (_emailTextController.text.isEmpty ||
-                        !_emailTextController.text.contains('@') ||
-                        !_emailTextController.text.contains('.')) {
-                      AlertMessage.messageError(
-                          subTitle:
-                              'S\'il vous plaît, mettez une adresse email valide',
-                          context: context);
-                    } else {
-                      _forgetPassFCT();
-                    }
+                  fonction: () async {
+                    await _forgetPassFCT();
                   },
                 ),
               ],
