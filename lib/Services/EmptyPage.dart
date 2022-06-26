@@ -35,16 +35,6 @@ class EmptyPage extends StatelessWidget {
               const SizedBox(
                 height: 30,
               ),
-              const Text(
-                'Whoops!',
-                style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 40,
-                    fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
               Text(
                 message,
                 textAlign: TextAlign.center,

@@ -25,7 +25,7 @@ class WishlistPage extends StatelessWidget {
         wishlistProvider.getWishlistItems.values.toList().reversed.toList();
     return wishlistItemsList.isEmpty || user == null
         ? EmptyPage(
-            imagePath: 'assets/images/ensembleVide.png',
+            imagePath: 'assets/images/AddToFavorite.png',
             message: 'Explorez plus et présélectionnez certains articles',
             textButton: 'Ajouter un souhait',
             fonction: () {

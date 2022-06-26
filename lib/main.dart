@@ -25,11 +25,11 @@ import 'package:flutter_application_1/Services/local_notication_manager.dart';
 import 'package:flutter_application_1/Services/push_notication_manager.dart';
 import 'package:flutter_application_1/Wishlist/WishlistPage.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 // import 'package:http/http.dart' as http;
+// import 'package:flutter_stripe/flutter_stripe.dart';
 
-/** Welcome to Main File  */
+/****************************** main() ***************************************/
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +40,8 @@ Future<void> main() async {
   return runApp(const MyApp());
 }
 
+/****************************** Gestion d'application ***************************************/
+
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -49,6 +51,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   DarkThemeProvider darkThemeProvider = DarkThemeProvider();
+  final Future<FirebaseApp> _firebaseInitialisation = Firebase.initializeApp();
 
   void getCurrentTheme() async {
     darkThemeProvider.setDarkTheme =
@@ -59,12 +62,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getCurrentTheme();
-    
   }
-
-
-
-  final Future<FirebaseApp> _firebaseInitialisation = Firebase.initializeApp();
 
   @override
   Widget build(BuildContext context) {

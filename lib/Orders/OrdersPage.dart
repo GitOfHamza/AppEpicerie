@@ -24,7 +24,7 @@ class _OrdersPageState extends State<OrdersPage> {
     final ordersList = ordersProvider.getOrders;
     return ordersList.isEmpty
         ? EmptyPage(
-            imagePath: 'assets/images/ensembleVide.png',
+            imagePath: 'assets/images/commandeVide.png',
             message: 'Vous n\'avez pas encore passé de commande',
             textButton: 'Achetez maintenant',
             fonction: () {

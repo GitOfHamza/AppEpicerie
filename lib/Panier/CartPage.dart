@@ -46,7 +46,7 @@ class _CartPageState extends State<CartPage> {
 
     return cartItemsList.isEmpty || user == null
         ? EmptyPage(
-            imagePath: 'assets/images/ensembleVide.png',
+            imagePath: 'assets/images/panierVide.png',
             message: 'Pas encore d\'articles dans votre panier',
             textButton: 'Achetez maintenant',
             fonction: () {
