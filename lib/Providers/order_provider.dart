@@ -28,6 +28,7 @@ class OrdersProvider with ChangeNotifier {
         prixTotal = element.get('prixTotal').toString();
       });
     });
+
     await FirebaseFirestore.instance
         .collection('ligneCommandes')
         .get()

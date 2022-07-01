@@ -201,13 +201,13 @@ class _UserPageState extends State<UserPage> {
                                 });
                           }),
                       _list_infos(
-                          title: 'Ordres',
+                          title: 'Votre commande',
                           icon: IconlyLight.bag,
                           onClick: () {
                             Navigator.pushNamed(context, '/OrdersPage');
                           }),
                       _list_infos(
-                          title: 'Liste de souhaits',
+                          title: 'Liste des favoris',
                           icon: IconlyLight.heart,
                           onClick: () {
                             Navigator.pushNamed(context, '/WishlistPage');

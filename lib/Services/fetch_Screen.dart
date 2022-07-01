@@ -24,6 +24,7 @@ class FetchScreen extends StatefulWidget {
 class _FetchScreenState extends State<FetchScreen> {
   @override
   void initState() {
+    
     Future.delayed(const Duration(microseconds: 5), () async {
       final productsProvider =
           Provider.of<ProductsProvider>(context, listen: false);
@@ -33,6 +34,7 @@ class _FetchScreenState extends State<FetchScreen> {
       final ordersProvider =
           Provider.of<OrdersProvider>(context, listen: false);
       final User? user = auth.currentUser;
+      
       if (user == null) {
         await productsProvider.fetchProducts();
         cartProvider.clearCart();
